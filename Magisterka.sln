@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blockchain", "Blockchain\Bl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{3A6FE458-C429-4740-A043-E79A23495CD4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blockchain.Test", "Test\Blockchain.Test\Blockchain.Test.csproj", "{F1D0D06E-F5D5-4358-9526-CB9BFA36CCA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blockchain.Test", "Test\Blockchain.Test\Blockchain.Test.csproj", "{F1D0D06E-F5D5-4358-9526-CB9BFA36CCA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking", "Networking\Networking.csproj", "{C135A124-70C1-42C4-B330-989B0FBCD214}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{F1D0D06E-F5D5-4358-9526-CB9BFA36CCA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1D0D06E-F5D5-4358-9526-CB9BFA36CCA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1D0D06E-F5D5-4358-9526-CB9BFA36CCA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C135A124-70C1-42C4-B330-989B0FBCD214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C135A124-70C1-42C4-B330-989B0FBCD214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C135A124-70C1-42C4-B330-989B0FBCD214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C135A124-70C1-42C4-B330-989B0FBCD214}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

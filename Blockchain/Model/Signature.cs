@@ -1,4 +1,4 @@
-﻿namespace Blockchain
+﻿namespace Blockchain.Model
 {
     public class Signature
     {

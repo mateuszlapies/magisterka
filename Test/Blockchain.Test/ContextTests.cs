@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Blockchain.Contexts;
 using LiteDB;
 
 namespace Blockchain.Test
@@ -11,7 +12,7 @@ namespace Blockchain.Test
 
         public ContextTests()
         {
-            context = new Context();
+            context = new Context(new Database());
             RSA rsa = RSA.Create();
             parameters = rsa.ExportParameters(true);
             testObject = new TestObject()
@@ -49,19 +50,23 @@ namespace Blockchain.Test
         public void GetTest()
         {
             TestObject obj = Get();
-            Assert.That(obj.Integer, Is.EqualTo(testObject.Integer));
-            Assert.That(obj.Long, Is.EqualTo(testObject.Long));
-            Assert.That(obj.Double, Is.EqualTo(testObject.Double));
-            Assert.That(obj.Float, Is.EqualTo(testObject.Float));
-            Assert.That(obj.String, Is.EqualTo(testObject.String));
-            Assert.That(obj.Timestamp.Ticks, Is.EqualTo(testObject.Timestamp.Ticks));
+            Assert.Multiple(() =>
+            {
+                Assert.That(obj, Is.Not.Null);
+                Assert.That(obj.Integer, Is.EqualTo(testObject.Integer));
+                Assert.That(obj.Long, Is.EqualTo(testObject.Long));
+                Assert.That(obj.Double, Is.EqualTo(testObject.Double));
+                Assert.That(obj.Float, Is.EqualTo(testObject.Float));
+                Assert.That(obj.String, Is.EqualTo(testObject.String));
+                Assert.That(obj.Timestamp.Ticks, Is.EqualTo(testObject.Timestamp.Ticks));
+            });
         }
 
         [Test]
         public void VerifySingleLinkTest()
         {
             Guid id = Add();
-            Assert.IsTrue(context.Verify(id));
+            Assert.That(context.Verify(id), Is.True);
         }
 
         [Test]
@@ -69,7 +74,7 @@ namespace Blockchain.Test
         {
             Add(100);
             Guid id = Add();
-            Assert.IsTrue(context.Verify(id));
+            Assert.That(context.Verify(id), Is.True);
         }
 
         private Guid Add(int amount = 1)
@@ -85,7 +90,7 @@ namespace Blockchain.Test
         private TestObject Get()
         {
             Guid id = Add();
-            return context.Get<TestObject>(id);
+            return (TestObject)context.Get(id).Object;
         }
     }
 

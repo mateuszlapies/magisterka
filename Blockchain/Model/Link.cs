@@ -1,8 +1,9 @@
 ﻿using LiteDB;
+using System.Text.Json.Serialization;
 
-namespace Blockchain
+namespace Blockchain.Model
 {
-    internal class Link
+    public class Link
     {
         [BsonId]
         public Guid Id { get; set; }
@@ -13,5 +14,8 @@ namespace Blockchain
         public Guid? LastId { get; set; }
         [BsonIgnore]
         public Link LastLink { get; set; }
+
+        [JsonIgnore]
+        public Lock Lock { get; set; }
     }
 }
