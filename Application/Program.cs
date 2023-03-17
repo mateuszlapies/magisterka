@@ -1,5 +1,10 @@
+using Application.Jobs;
+using Application.Utils;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
+using Hangfire;
+using Hangfire.Storage.SQLite;
+using Networking.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +12,13 @@ builder.WebHost.UseElectron(args);
 
 builder.Services.AddElectron();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHangfire(configuration => configuration
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSQLiteStorage(Sequal.ConnectionString()));
+
+builder.Services.AddHostedService<HangfireJobs>();
 
 var app = builder.Build();
 
@@ -29,6 +41,9 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html");
+
+app.MapHub<SyncHub>("/sync");
+app.MapHub<LockHub>("/lock");
 
 app.Run();
 

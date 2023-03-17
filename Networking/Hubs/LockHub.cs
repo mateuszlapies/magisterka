@@ -1,11 +1,12 @@
 ﻿using Blockchain.Contexts;
 using Blockchain.Model;
+using Microsoft.AspNetCore.SignalR;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
 
 namespace Networking.Hubs
 {
-    public class LockHub
+    public class LockHub : Hub
     {
         private readonly Context context;
 

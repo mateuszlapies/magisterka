@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using Blockchain.Contexts;
-using LiteDB;
 
 namespace Blockchain.Test
 {
@@ -12,7 +11,7 @@ namespace Blockchain.Test
 
         public ContextTests()
         {
-            context = new Context(new Database());
+            context = new Context();
             RSA rsa = RSA.Create();
             parameters = rsa.ExportParameters(true);
             testObject = new TestObject()

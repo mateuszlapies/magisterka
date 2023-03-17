@@ -7,28 +7,24 @@ namespace Blockchain
     {
         private static LiteDatabase database;
         
-        private readonly string file = "blockchain.db";
+        private static readonly string file = "blockchain.db";
 
-        public Database() 
+        public static LiteDatabase Instance() 
         {
             if (database == null)
             {
                 #if DEBUG
                     database = new LiteDatabase(file, GetMapper());
                 #else
-                    database = new LiteDatabase(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), file), GetMapper());
+                    Instance = new LiteDatabase(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), file), GetMapper());
                 #endif
             }
-        }
-
-        public LiteDatabase Instance()
-        {
             return database;
         }
 
-        private BsonMapper GetMapper()
+        private static BsonMapper GetMapper()
         {
-            BsonMapper mapper = new BsonMapper();
+            BsonMapper mapper = new ();
             mapper.RegisterType(
                 value => value.ToString("o", CultureInfo.InvariantCulture),
                 bson => DateTime.ParseExact(bson, "o", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind));

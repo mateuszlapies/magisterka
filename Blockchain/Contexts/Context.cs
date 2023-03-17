@@ -11,9 +11,9 @@ namespace Blockchain.Contexts
         private readonly LiteDatabase database;
         private readonly ILiteCollection<Link> chain;
 
-        public Context(Database database)
+        public Context()
         {
-            this.database = database.Instance();
+            this.database = Database.Instance();
             chain = this.database.GetCollection<Link>("chain");
         }
 
@@ -25,6 +25,16 @@ namespace Blockchain.Contexts
         public Link Get(Guid id)
         {
             return chain.FindOne(q => q.Id == id);
+        }
+
+        public void Add(Link link)
+        {
+            chain.Insert(link);
+        }
+
+        public void Add(IEnumerable<Link> links)
+        {
+            chain.InsertBulk(links);
         }
 
         public Guid Add<T>(T obj, RSAParameters key)
@@ -48,6 +58,22 @@ namespace Blockchain.Contexts
         public void Update(Link link)
         {
             chain.Update(link);
+        }
+
+        public void Remove(Link link)
+        {
+            chain.Delete(link.Id);
+        }
+
+        public void Remove(IEnumerable<Link> links)
+        {
+            chain.DeleteMany(d => links.Any(q => q.Id == d.Id));
+        }
+
+        public bool Verify()
+        {
+            Guid id = GetLastLink().Id;
+            return Verify(id);
         }
 
         public bool Verify(Guid id)
