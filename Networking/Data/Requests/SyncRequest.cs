@@ -2,6 +2,6 @@
 {
     public class SyncRequest
     {
-        public Guid LastId { get; set; }
+        public Guid? LastId { get; set; }
     }
 }

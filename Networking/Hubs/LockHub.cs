@@ -43,7 +43,8 @@ namespace Networking.Hubs
             link.Lock = new Lock()
             {
                 NextId = request.NextId,
-                Owner = request.Owner
+                Owner = request.Owner,
+                Expires = DateTime.UtcNow.AddMinutes(1)
             };
 
             context.Update(link);

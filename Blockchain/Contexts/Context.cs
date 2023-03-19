@@ -8,6 +8,7 @@ namespace Blockchain.Contexts
 {
     public class Context
     {
+        private Guid lastId;
         private readonly LiteDatabase database;
         private readonly ILiteCollection<Link> chain;
 
@@ -27,14 +28,21 @@ namespace Blockchain.Contexts
             return chain.FindOne(q => q.Id == id);
         }
 
+        public List<Link> Get()
+        {
+            return chain.FindAll().ToList();
+        }
+
         public void Add(Link link)
         {
             chain.Insert(link);
+            lastId = link.Id;
         }
 
         public void Add(IEnumerable<Link> links)
         {
             chain.InsertBulk(links);
+            CalculateLastLink();
         }
 
         public Guid Add<T>(T obj, RSAParameters key)
@@ -52,22 +60,26 @@ namespace Blockchain.Contexts
             };
             link.Signature = Sign(link, key);
             chain.Insert(link);
+            lastId = link.Id;
             return id;
         }
 
         public void Update(Link link)
         {
             chain.Update(link);
+            CalculateLastLink();
         }
 
         public void Remove(Link link)
         {
             chain.Delete(link.Id);
+            CalculateLastLink();
         }
 
         public void Remove(IEnumerable<Link> links)
         {
             chain.DeleteMany(d => links.Any(q => q.Id == d.Id));
+            CalculateLastLink();
         }
 
         public bool Verify()
@@ -92,12 +104,22 @@ namespace Blockchain.Contexts
 
         public Link GetLastLink()
         {
+            return Get(lastId);
+        }
+
+        private void CalculateLastLink()
+        {
             Link link = chain.Query().Where(q => q.LastId == null).SingleOrDefault();
-            while (link?.LastId != null)
+            Link temp = link;
+            while (temp != null)
             {
-                link = chain.Query().Where(q => q.LastId == link.Id).SingleOrDefault();
+                temp = chain.Query().Where(q => q.LastId == temp.Id).SingleOrDefault();
+                if (temp != null)
+                {
+                    link = temp;
+                }
             }
-            return link;
+            lastId = link.Id;
         }
 
         private static string Serialize(Link link)

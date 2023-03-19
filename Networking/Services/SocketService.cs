@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Blockchain.Model;
+﻿using Blockchain.Model;
 using Microsoft.AspNetCore.SignalR.Client;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
@@ -15,22 +14,26 @@ namespace Networking.Services
 
         public List<Link> Sync(Guid lastId)
         {
-            SyncRequest request = new()
-            {
-                LastId = lastId
-            };
-
-            List<Task<SyncResponse>> tasks = new();
-
-            foreach(HubConnection c in HubService.Connections().Values)
-            {
-                tasks.Add(c.InvokeAsync<SyncResponse>("Sync", request));
-            }
-
-            Task.WaitAll(tasks.ToArray());
-
             List<Link> links = new();
-            tasks.ForEach(t => links.Union(t.Result.Links));
+            if (HubService.Connections().Count > 0)
+            {
+                SyncRequest request = new()
+                {
+                    LastId = lastId
+                };
+
+                List<Task<SyncResponse>> tasks = new();
+
+                //foreach (HubConnection c in HubService.Connections().Values)
+                //{
+                //    tasks.Add(c.InvokeAsync<SyncResponse>("Sync", request));
+                //}
+
+                Task.WaitAll(tasks.ToArray());
+
+                tasks.ForEach(t => links.Union(t.Result.Links));
+            }
+            HubService.Sync();
             return links;
         }
 
@@ -45,9 +48,9 @@ namespace Networking.Services
 
             List<Task<LockResponse>> tasks = new();
 
-            foreach(HubConnection c in HubService.Connections().Values) { 
-                tasks.Add(c.InvokeAsync<LockResponse>("Lock", request));
-            };
+            //foreach(HubConnection c in HubService.Connections().Values) { 
+            //    tasks.Add(c.InvokeAsync<LockResponse>("Lock", request));
+            //};
 
             Task.WaitAll(tasks.ToArray());
 
