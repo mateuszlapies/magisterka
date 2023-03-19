@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
+using Networking.Hubs;
 
 namespace Networking.Services
 {
@@ -15,7 +16,7 @@ namespace Networking.Services
         public List<Link> Sync(Guid lastId)
         {
             List<Link> links = new();
-            if (HubService.Connections().Count > 0)
+            if (HubService.Instances.Count<SyncHub>() > 0)
             {
                 SyncRequest request = new()
                 {
@@ -24,10 +25,10 @@ namespace Networking.Services
 
                 List<Task<SyncResponse>> tasks = new();
 
-                //foreach (HubConnection c in HubService.Connections().Values)
-                //{
-                //    tasks.Add(c.InvokeAsync<SyncResponse>("Sync", request));
-                //}
+                foreach (HubConnection c in HubService.Instances.Get<SyncHub>())
+                {
+                    tasks.Add(c.InvokeAsync<SyncResponse>("Sync", request));
+                }
 
                 Task.WaitAll(tasks.ToArray());
 
@@ -48,9 +49,9 @@ namespace Networking.Services
 
             List<Task<LockResponse>> tasks = new();
 
-            //foreach(HubConnection c in HubService.Connections().Values) { 
-            //    tasks.Add(c.InvokeAsync<LockResponse>("Lock", request));
-            //};
+            foreach(HubConnection c in HubService.Instances.Get<LockHub>()) { 
+                tasks.Add(c.InvokeAsync<LockResponse>("Lock", request));
+            };
 
             Task.WaitAll(tasks.ToArray());
 

@@ -1,12 +1,11 @@
 ﻿using Makaretu.Dns;
-using Microsoft.AspNetCore.SignalR.Client;
 using Networking.Data;
 
 namespace Networking.Services
 {
     public class HubService
     {
-        public static HubInstances instances;
+        public static HubInstances Instances { get; set; }
 
         private static MulticastService multicastService;
         private static ServiceDiscovery serviceDiscovery;
@@ -17,9 +16,9 @@ namespace Networking.Services
 
         public static void Init()
         {
-            if (instances == null)
+            if (Instances == null)
             {
-                instances = new();
+                Instances = new();
             }
 
             if (multicastService == null)
@@ -39,12 +38,12 @@ namespace Networking.Services
 
         public static HubInstances Connections()
         {
-            if (instances == null)
+            if (Instances == null)
             {
-                instances = new();
+                Instances = new();
             }
 
-            return instances;
+            return Instances;
         }
 
         public static void Sync()
