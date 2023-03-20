@@ -1,6 +1,8 @@
 ﻿using Makaretu.Dns;
 using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.SignalR.Client;
 using Networking.Data;
+using Networking.Hubs;
 using Serilog;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -65,7 +67,7 @@ namespace Networking.Services
                     IEnumerable<SRVRecord> services = e.Message.Answers.OfType<SRVRecord>();
                     foreach (SRVRecord service in services)
                     {
-                        if (service.Target.Labels[0] != instanceName.Labels[0] && service.Name.Labels[2] == serviceName.Labels[0])
+                        if (!service.Target.ToString().Contains(instanceName.ToString()) && service.Name.ToString().Contains(serviceName.ToString()))
                         {
                             logger.Information("Host {host} for {service} has been discovered", service.Target, service.Name);
                             multicastService.SendQuery(service.Target, type: DnsType.A);
@@ -75,8 +77,14 @@ namespace Networking.Services
                     IEnumerable<AddressRecord> addresses = e.Message.Answers.OfType<AddressRecord>();
                     foreach (AddressRecord address in addresses)
                     {
-                        logger.Information("Host {host} at {service} has been discovered", address.Name, address.Address);
-
+                        if (!address.Name.ToString().Contains(instanceName.ToString()))
+                        {
+                            logger.Information("Host {host} at {service} has been discovered", address.Name, address.Address);
+                            HubConnection connection = new HubConnectionBuilder()
+                            .WithUrl(string.Format("https://{0}:7281/sync", address.Address))
+                            .Build();
+                            Instances.Add<SyncHub>(connection);
+                        }
                     }
                 };
 
