@@ -7,7 +7,7 @@
         public static string ConnectionString()
         {
             #if DEBUG
-                return file;
+                return Path.Combine(@"bin\Debug\net7.0", file);
             #else
                 return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), file);
             #endif

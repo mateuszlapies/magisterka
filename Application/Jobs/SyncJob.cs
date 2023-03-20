@@ -19,7 +19,7 @@ namespace Application.Jobs
 
         public void Run()
         {
-            Guid lastId = context.GetLastLink().Id;
+            Guid? lastId = context.GetLastLink()?.Id;
             logger.LogInformation("Sending Sync requests {lastId}", lastId);
             List<Link> links = socketService.Sync(lastId);
             if (links.Count > 0)

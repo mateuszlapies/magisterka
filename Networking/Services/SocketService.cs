@@ -8,12 +8,7 @@ namespace Networking.Services
 {
     public class SocketService
     {
-        public SocketService()
-        {
-            HubService.Init();
-        }
-
-        public List<Link> Sync(Guid lastId)
+        public List<Link> Sync(Guid? lastId)
         {
             List<Link> links = new();
             if (HubService.Instances.Count<SyncHub>() > 0)

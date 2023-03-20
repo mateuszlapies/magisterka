@@ -7,12 +7,12 @@ namespace Networking.Services
     {
         public static HubInstances Instances { get; set; }
 
-        private static MulticastService multicastService;
+        //private static MulticastService multicastService;
         private static ServiceDiscovery serviceDiscovery;
 
         private static readonly DomainName instanceName = new (Environment.MachineName);
-        private static readonly DomainName serviceName = new ("mgr.local");
-        private static readonly ServiceProfile serviceProfile = new (instanceName, serviceName, 8443);
+        private static readonly DomainName serviceName = new ("_blockchain._tcp");
+        private static readonly ServiceProfile serviceProfile = new (instanceName, serviceName, 7281);
 
         public static void Init()
         {
@@ -21,19 +21,30 @@ namespace Networking.Services
                 Instances = new();
             }
 
-            if (multicastService == null)
+            //if (multicastService == null)
+            //{
+            //    multicastService = new MulticastService();
+
+            //    multicastService.AnswerReceived += AnswerReceived;
+            //}
+
+            if (/*multicastService != null && */serviceDiscovery == null)
             {
-                multicastService = new MulticastService();
+                serviceDiscovery = new ServiceDiscovery(/*multicastService*/);
 
-                multicastService.AnswerReceived += AnswerReceived;
+                serviceDiscovery.ServiceDiscovered += ServiceDiscovered;
+                serviceDiscovery.ServiceInstanceDiscovered += ServiceInstanceDiscovered;
             }
+        }
 
-            if (multicastService != null && serviceDiscovery == null)
-            {
-                serviceDiscovery = new ServiceDiscovery(multicastService);
+        public static void Sync()
+        {
+            serviceDiscovery.Advertise(serviceProfile);
+        }
 
-                serviceDiscovery.QueryUnicastServiceInstances(serviceName);
-            }
+        public static void Close()
+        {
+            serviceDiscovery.Unadvertise(serviceProfile);
         }
 
         public static HubInstances Connections()
@@ -46,20 +57,14 @@ namespace Networking.Services
             return Instances;
         }
 
-        public static void Sync()
+        private static void ServiceInstanceDiscovered(object? sender, ServiceInstanceDiscoveryEventArgs e)
         {
-            multicastService.QueryReceived += QueryReceived;
-            serviceDiscovery.Advertise(serviceProfile);
+            throw new NotImplementedException();
         }
 
-        private static void AnswerReceived(object? sender, MessageEventArgs e)
+        private static void ServiceDiscovered(object? sender, DomainName e)
         {
-            Console.WriteLine(sender);
-        }
-
-        private static void QueryReceived(object? sender, MessageEventArgs e)
-        {
-            Console.WriteLine(sender);
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,16 +1,20 @@
 using Application.Jobs;
 using Application.Utils;
+using Blockchain.Contexts;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
 using Hangfire;
 using Hangfire.Storage.SQLite;
 using Networking.Hubs;
+using Networking.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseElectron(args);
 
+builder.Services.AddSignalR();
 builder.Services.AddElectron();
+builder.Services.AddHangfireServer();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHangfire(configuration => configuration
@@ -19,6 +23,13 @@ builder.Services.AddHangfire(configuration => configuration
             .UseSQLiteStorage(Sequal.ConnectionString()));
 
 builder.Services.AddHostedService<HangfireJobs>();
+builder.Services.AddHostedService<HubHostedService>();
+
+builder.Services.AddTransient<Context>();
+builder.Services.AddTransient<PublicContext>();
+
+builder.Services.AddTransient<SocketService>();
+builder.Services.AddTransient<HubService>();
 
 var app = builder.Build();
 
@@ -30,6 +41,10 @@ if (HybridSupport.IsElectronActive)
 if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
+} else
+{
+    app.UseHangfireDashboard();
+    app.MapHangfireDashboard();
 }
 
 app.UseHttpsRedirection();

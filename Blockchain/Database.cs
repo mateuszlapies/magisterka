@@ -14,7 +14,7 @@ namespace Blockchain
             if (database == null)
             {
                 #if DEBUG
-                    database = new LiteDatabase(file, GetMapper());
+                    database = new LiteDatabase(Path.Combine(@"bin\Debug\net7.0", file), GetMapper());
                 #else
                     Instance = new LiteDatabase(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), file), GetMapper());
                 #endif
