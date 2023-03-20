@@ -13,11 +13,20 @@ namespace Networking.Data
 
         public void Add<T>(HubConnection connection)
         {
+            connection.Closed += Connection_Closed;
             Instances.Add(new HubInstance()
             {
                 Type = typeof(T),
                 Connection = connection
             });
+        }
+
+        private Task Connection_Closed(Exception? arg)
+        {
+            return Task.Run(() =>
+            {
+                Instances.RemoveAll(q => q.Connection.State == HubConnectionState.Disconnected);
+            };
         }
 
         public List<HubConnection> Get<T>()

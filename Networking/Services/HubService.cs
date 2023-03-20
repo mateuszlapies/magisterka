@@ -22,7 +22,7 @@ namespace Networking.Services
 
         private static readonly DomainName instanceName = new (instance);
         private static readonly DomainName serviceName = new (string.Format("_{0}._tcp", service));
-        private static readonly ServiceProfile serviceProfile = new (instanceName, serviceName, 7281);
+        private static readonly ServiceProfile serviceProfile = new (instanceName, serviceName, 44487);
 
         public static void Init()
         {
@@ -69,7 +69,7 @@ namespace Networking.Services
                     {
                         if (!srv.Target.ToString().Contains(instance) && srv.Name.ToString().Contains(service))
                         {
-                            logger.Information("Host {host} for {service} has been discovered", srv.Target, srv.Name);
+                            logger.Information("Host {host} has been discovered", srv.Target, srv.Name);
                             multicastService.SendQuery(srv.Target, type: DnsType.A);
                         }
                     }
@@ -77,15 +77,22 @@ namespace Networking.Services
                     IEnumerable<AddressRecord> addresses = e.Message.Answers.OfType<AddressRecord>();
                     foreach (AddressRecord address in addresses)
                     {
-                        string addressName = address.Name.ToString();
-
-                        if (!addressName.Contains(instance) && addressName.Contains(service))
+                        if (address.Type == DnsType.A)
                         {
-                            logger.Information("Host {host} at {service} has been discovered", address.Name, address.Address);
-                            HubConnection connection = new HubConnectionBuilder()
-                            .WithUrl(string.Format("https://{0}:7281/sync", address.Address))
-                            .Build();
-                            Instances.Add<SyncHub>(connection);
+                            string addressName = address.Name.ToString();
+
+                            if (!addressName.Contains(instance) && addressName.Contains(service))
+                            {
+                                if (address.Address.ToString().StartsWith("192.") || address.Address.ToString().StartsWith("10."))
+                                {
+                                    logger.Information("Host {host} at {service} has been discovered", address.Name, address.Address);
+                                    HubConnection connection = new HubConnectionBuilder()
+                                    .WithUrl(string.Format("https://{0}:44487/sync", address.Address))
+                                    .Build();
+                                    connection.StartAsync().GetAwaiter().GetResult();
+                                    Instances.Add<SyncHub>(connection);
+                                }
+                            }
                         }
                     }
                 };
