@@ -35,6 +35,15 @@ namespace Networking.Services
             {
                 serviceDiscovery = new ServiceDiscovery(multicastService);
 
+                multicastService.NetworkInterfaceDiscovered += (s, e) =>
+                {
+                    foreach (NetworkInterface nic in e.NetworkInterfaces)
+                    {
+                        logger.Information("NIC discovered: {name}", nic.Name);
+                    }
+                    serviceDiscovery.QueryServiceInstances(serviceName);
+                };
+
                 serviceDiscovery.ServiceInstanceDiscovered += (s, e) =>
                 {
                     logger.Information("Service Instance discovered: {name}", e.ServiceInstanceName);
@@ -50,8 +59,8 @@ namespace Networking.Services
                         Console.WriteLine($"host '{server.Target}' for '{server.Name}'");
 
                         // Ask for the host IP addresses.
-                        multicastService.SendQuery(server.Target, type: DnsType.A);
-                        multicastService.SendQuery(server.Target, type: DnsType.AAAA);
+                        //multicastService.SendQuery(server.Target, type: DnsType.A);
+                        //multicastService.SendQuery(server.Target, type: DnsType.AAAA);
                     }
 
                     // Is this an answer to host addresses?
@@ -62,7 +71,7 @@ namespace Networking.Services
                     }
                 };
 
-                serviceDiscovery.QueryServiceInstances(serviceName);
+                multicastService.Start();
             }
         }
 
