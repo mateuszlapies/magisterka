@@ -1,4 +1,5 @@
 ﻿using Makaretu.Dns;
+using Microsoft.AspNetCore.Hosting.Server;
 using Networking.Data;
 using Serilog;
 using System.Net;
@@ -29,11 +30,14 @@ namespace Networking.Services
             if (multicastService == null)
             {
                 multicastService = new MulticastService();
+                multicastService.UseIpv6 = false;
             }
 
             if (multicastService != null && serviceDiscovery == null)
             {
                 serviceDiscovery = new ServiceDiscovery(multicastService);
+
+                serviceDiscovery.Advertise(serviceProfile);
 
                 multicastService.NetworkInterfaceDiscovered += (s, e) =>
                 {
@@ -46,28 +50,33 @@ namespace Networking.Services
 
                 serviceDiscovery.ServiceInstanceDiscovered += (s, e) =>
                 {
-                    logger.Information("Service Instance discovered: {name}", e.ServiceInstanceName);
-                    multicastService.SendQuery(e.ServiceInstanceName, type: DnsType.SRV);
+                    if (!e.ServiceInstanceName.Labels.Contains<string>(instanceName.Labels[0]))
+                    {
+                        if (e.ServiceInstanceName.Labels.Contains<string>(serviceName.Labels[0]))
+                        {
+                            logger.Information("Service Instance discovered: {name}", e.ServiceInstanceName);
+                            multicastService.SendQuery(e.ServiceInstanceName, type: DnsType.SRV);
+                        }
+                    }
                 };
 
                 multicastService.AnswerReceived += (s, e) =>
                 {
-                    // Is this an answer to a service instance details?
-                    var servers = e.Message.Answers.OfType<SRVRecord>();
-                    foreach (var server in servers)
+                    IEnumerable<SRVRecord> services = e.Message.Answers.OfType<SRVRecord>();
+                    foreach (SRVRecord service in services)
                     {
-                        Console.WriteLine($"host '{server.Target}' for '{server.Name}'");
-
-                        // Ask for the host IP addresses.
-                        //multicastService.SendQuery(server.Target, type: DnsType.A);
-                        //multicastService.SendQuery(server.Target, type: DnsType.AAAA);
+                        if (service.Target.Labels[0] != instanceName.Labels[0] && service.Name.Labels[2] == serviceName.Labels[0])
+                        {
+                            logger.Information("Host {host} for {service} has been discovered", service.Target, service.Name);
+                            multicastService.SendQuery(service.Target, type: DnsType.A);
+                        }
                     }
 
-                    // Is this an answer to host addresses?
-                    var addresses = e.Message.Answers.OfType<AddressRecord>();
-                    foreach (var address in addresses)
+                    IEnumerable<AddressRecord> addresses = e.Message.Answers.OfType<AddressRecord>();
+                    foreach (AddressRecord address in addresses)
                     {
-                        Console.WriteLine($"host '{address.Name}' at {address.Address}");
+                        logger.Information("Host {host} at {service} has been discovered", address.Name, address.Address);
+
                     }
                 };
 
@@ -77,12 +86,13 @@ namespace Networking.Services
 
         public static void Sync()
         {
-            serviceDiscovery.Advertise(serviceProfile);
+            serviceDiscovery.Announce(serviceProfile);
         }
 
         public static void Close()
         {
             serviceDiscovery.Unadvertise(serviceProfile);
+            multicastService.Start();
         }
 
         public static HubInstances Connections()
