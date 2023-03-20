@@ -7,8 +7,15 @@ using Hangfire;
 using Hangfire.Storage.SQLite;
 using Networking.Hubs;
 using Networking.Services;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog();
 
 builder.WebHost.UseElectron(args);
 
