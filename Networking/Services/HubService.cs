@@ -87,7 +87,18 @@ namespace Networking.Services
                                 {
                                     logger.Information("Host {host} at {service} has been discovered", address.Name, address.Address);
                                     HubConnection connection = new HubConnectionBuilder()
-                                    .WithUrl(string.Format("https://{0}:44487/sync", address.Address))
+                                    .WithUrl(string.Format("https://{0}:44487/sync", address.Address), options =>
+                                    {
+                                        options.HttpMessageHandlerFactory = (message) =>
+                                        {
+                                            if (message is HttpClientHandler clientHandler)
+                                                // always verify the SSL certificate
+                                                clientHandler.ServerCertificateCustomValidationCallback +=
+                                                    (sender, certificate, chain, sslPolicyErrors) => { return true; };
+                                            return message;
+                                        };
+                                    })
+                                    .WithAutomaticReconnect()
                                     .Build();
                                     connection.StartAsync().GetAwaiter().GetResult();
                                     Instances.Add<SyncHub>(connection);

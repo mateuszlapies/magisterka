@@ -26,7 +26,7 @@ namespace Networking.Data
             return Task.Run(() =>
             {
                 Instances.RemoveAll(q => q.Connection.State == HubConnectionState.Disconnected);
-            };
+            });
         }
 
         public List<HubConnection> Get<T>()
