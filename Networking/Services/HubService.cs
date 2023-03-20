@@ -35,15 +35,6 @@ namespace Networking.Services
             {
                 serviceDiscovery = new ServiceDiscovery(multicastService);
 
-                multicastService.NetworkInterfaceDiscovered += (s, e) =>
-                {
-                    foreach (NetworkInterface nic in e.NetworkInterfaces)
-                    {
-                        logger.Information("NIC discovered: {name}", nic.Name);
-                    }
-                    serviceDiscovery.QueryServiceInstances(serviceName);
-                };
-
                 serviceDiscovery.ServiceInstanceDiscovered += (s, e) =>
                 {
                     logger.Information("Service Instance discovered: {name}", e.ServiceInstanceName);
@@ -69,8 +60,9 @@ namespace Networking.Services
                     {
                         Console.WriteLine($"host '{address.Name}' at {address.Address}");
                     }
-
                 };
+
+                serviceDiscovery.QueryServiceInstances(serviceName);
             }
         }
 
