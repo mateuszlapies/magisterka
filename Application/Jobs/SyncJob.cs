@@ -1,27 +1,28 @@
 ﻿using Blockchain.Contexts;
 using Blockchain.Model;
+using Hangfire;
 using Networking.Services;
 
 namespace Application.Jobs
 {
+    [AutomaticRetry(Attempts = 0)]
+    [MaximumConcurrentExecutions(1)]
     public class SyncJob
     {
         private readonly ILogger<SyncJob> logger;
         private readonly Context context;
-        private readonly SocketService socketService;
         
-        public SyncJob(ILogger<SyncJob> logger, Context context, SocketService socketService)
+        public SyncJob(ILogger<SyncJob> logger, Context context)
         {
             this.logger = logger;
-            this.context = context;
-            this.socketService = socketService;            
+            this.context = context;          
         }
 
         public void Run()
         {
             Guid? lastId = context.GetLastLink()?.Id;
             logger.LogInformation("Sending Sync requests for last link id: {lastId}", lastId);
-            List<Link> links = socketService.Sync(lastId);
+            List<Link> links = SocketService.Sync(lastId);
             if (links.Count > 0)
             {
                 logger.LogInformation("Received {amount} link(s)", links.Count);

@@ -32,11 +32,14 @@ namespace Networking.Test
         public void SyncTestSuccessAll()
         {
             TestObjectHelper.Add(context, parameters, 1000);
-            SyncRequest request = new SyncRequest();
+            SyncRequest request = new();
             SyncResponse response = syncHub.Sync(request);
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.Success, Is.True);
-            Assert.That(response.Links.Count, Is.EqualTo(1000));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response, Is.Not.Null);
+                Assert.That(response.Success, Is.True);
+                Assert.That(response.Links, Has.Count.EqualTo(1000));
+            });
         }
 
         [Test]
@@ -44,11 +47,14 @@ namespace Networking.Test
         {
             Guid lastId = TestObjectHelper.Add(context, parameters, 500);
             TestObjectHelper.Add(context, parameters, 500);
-            SyncRequest request = new SyncRequest() { LastId = lastId };
+            SyncRequest request = new() { LastId = lastId };
             SyncResponse response = syncHub.Sync(request);
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.Success, Is.True);
-            Assert.That(response.Links.Count, Is.EqualTo(500));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response, Is.Not.Null);
+                Assert.That(response.Success, Is.True);
+                Assert.That(response.Links, Has.Count.EqualTo(500));
+            });
         }
     }
 }

@@ -35,7 +35,6 @@ builder.Services.AddHostedService<HubHostedService>();
 builder.Services.AddTransient<Context>();
 builder.Services.AddTransient<PublicContext>();
 
-builder.Services.AddTransient<SocketService>();
 builder.Services.AddTransient<HubService>();
 
 var app = builder.Build();
@@ -64,14 +63,14 @@ app.MapControllerRoute(
 
 app.MapFallbackToFile("index.html");
 
-app.MapHub<SyncHub>("/sync");
-app.MapHub<LockHub>("/lock");
+app.MapHub<SyncHub>(SyncHub.Endpoint);
+app.MapHub<LockHub>(LockHub.Endpoint);
 
 app.Run();
 
 async void ElectronBootstrap()
 {
-    BrowserWindowOptions options = new BrowserWindowOptions
+    BrowserWindowOptions options = new()
     {
         Show = false
     };
@@ -84,7 +83,7 @@ async void ElectronBootstrap()
     {
         Electron.App.Exit();
     };
-    mainWindow.SetTitle("Application");
+    mainWindow.SetTitle("Magisterka");
 
     MenuItem[] menu = new MenuItem[]
     {

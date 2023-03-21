@@ -8,7 +8,7 @@ namespace Networking.Services
 {
     public class SocketService
     {
-        public List<Link> Sync(Guid? lastId)
+        public static List<Link> Sync(Guid? lastId)
         {
             List<Link> links = new();
             if (HubService.Instances.Count<SyncHub>() > 0)
@@ -27,13 +27,13 @@ namespace Networking.Services
 
                 Task.WaitAll(tasks.ToArray());
 
-                tasks.ForEach(t => links.Union(t.Result.Links));
+                tasks.ForEach(t => links = links.Union(t.Result.Links).ToList());
             }
             HubService.Sync();
             return links;
         }
 
-        public bool Lock(Guid lockId, Guid nextId, string owner)
+        public static bool Lock(Guid lockId, Guid nextId, string owner)
         {
             LockRequest request = new()
             {

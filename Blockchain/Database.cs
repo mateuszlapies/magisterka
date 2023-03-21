@@ -14,9 +14,21 @@ namespace Blockchain
             if (database == null)
             {
                 #if DEBUG
-                    database = new LiteDatabase(Path.Combine(@"bin\Debug\net7.0", file), GetMapper());
+                    if (!Directory.GetCurrentDirectory().Contains("bin"))
+                    {
+                        database = new LiteDatabase(Path.Combine("bin/Debug/net7.0", file), GetMapper());
+                    } else
+                    {
+                        database = new LiteDatabase(file, GetMapper());
+                    }
+                    
                 #else
-                    Instance = new LiteDatabase(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), file), GetMapper());
+                    string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Magisterka");
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    database = new LiteDatabase(Path.Combine(path, file), GetMapper());
                 #endif
             }
             return database;

@@ -1,9 +1,7 @@
 ﻿using Makaretu.Dns;
-using Microsoft.AspNetCore.SignalR.Client;
 using Networking.Data;
 using Networking.Hubs;
 using Serilog;
-using System.Linq;
 using System.Net.NetworkInformation;
 
 namespace Networking.Services
@@ -26,16 +24,12 @@ namespace Networking.Services
 
         public static void Init()
         {
-            if (Instances == null)
-            {
-                Instances = new();
-            }
+            Instances ??= new();
 
-            if (multicastService == null)
-            {
-                multicastService = new MulticastService();
-                multicastService.UseIpv6 = false;
-            }
+            multicastService ??= new MulticastService
+                {
+                    UseIpv6 = false
+                };
 
             if (multicastService != null && serviceDiscovery == null)
             {
@@ -86,22 +80,8 @@ namespace Networking.Services
                                 if (address.Address.ToString().StartsWith("192.") || address.Address.ToString().StartsWith("10."))
                                 {
                                     logger.Information("Host {host} at {service} has been discovered", address.Name, address.Address);
-                                    HubConnection connection = new HubConnectionBuilder()
-                                    .WithUrl(string.Format("https://{0}:44487/sync", address.Address), options =>
-                                    {
-                                        options.HttpMessageHandlerFactory = (message) =>
-                                        {
-                                            if (message is HttpClientHandler clientHandler)
-                                                // always verify the SSL certificate
-                                                clientHandler.ServerCertificateCustomValidationCallback +=
-                                                    (sender, certificate, chain, sslPolicyErrors) => { return true; };
-                                            return message;
-                                        };
-                                    })
-                                    .WithAutomaticReconnect()
-                                    .Build();
-                                    connection.StartAsync().GetAwaiter().GetResult();
-                                    Instances.Add<SyncHub>(connection);
+                                    Instances.Add<SyncHub>(address);
+                                    Instances.Add<LockHub>(address);
                                 }
                             }
                         }
@@ -125,10 +105,7 @@ namespace Networking.Services
 
         public static HubInstances Connections()
         {
-            if (Instances == null)
-            {
-                Instances = new();
-            }
+            Instances ??= new();
 
             return Instances;
         }

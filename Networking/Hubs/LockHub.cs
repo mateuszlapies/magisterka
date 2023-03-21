@@ -6,9 +6,12 @@ using Networking.Data.Responses;
 
 namespace Networking.Hubs
 {
-    public class LockHub : Hub
+    public class LockHub : Hub, IHub
     {
         private readonly Context context;
+
+        private static readonly string _endpoint = "lock";
+        public static string Endpoint { get { return _endpoint; } }
 
         public LockHub(Context context)
         {

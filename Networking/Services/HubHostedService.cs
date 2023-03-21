@@ -8,7 +8,7 @@ namespace Networking.Services
         {
             return Task.Run(() => {
                 HubService.Init();
-            });
+            }, cancellationToken);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -16,7 +16,7 @@ namespace Networking.Services
             return Task.Run(() =>
             {
                 HubService.Close();
-            });
+            }, cancellationToken);
         }
     }
 }

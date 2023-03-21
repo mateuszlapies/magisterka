@@ -4,7 +4,7 @@ namespace Application.Jobs
 {
     public class HangfireJobs : IHostedService
     {
-        private List<string> jobsId;
+        private readonly List<string> jobsId;
 
         public HangfireJobs()
         {
@@ -16,9 +16,10 @@ namespace Application.Jobs
             return Task.Run(() =>
             {
                 string syncId = "Sync";
-                RecurringJob.AddOrUpdate<SyncJob>(syncId, x => x.Run(), Cron.Minutely);
+                BackgroundJob.Enqueue<SyncJob>(x => x.Run());
+                RecurringJob.AddOrUpdate<SyncJob>(syncId, x => x.Run(), Cron.Hourly);
                 jobsId.Add(syncId);
-            });
+            }, cancellationToken);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -26,7 +27,7 @@ namespace Application.Jobs
             return Task.Run(() =>
             {
                 jobsId.ForEach(id => RecurringJob.RemoveIfExists(id));
-            });
+            }, cancellationToken);
         }
     }
 }

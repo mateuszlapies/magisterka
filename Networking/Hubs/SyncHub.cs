@@ -6,9 +6,12 @@ using Networking.Data.Responses;
 
 namespace Networking.Hubs
 {
-    public class SyncHub : Hub
+    public class SyncHub : Hub, IHub
     {
         private readonly Context context;
+
+        private static readonly string _endpoint = "sync";
+        public static string Endpoint { get { return _endpoint; } }
 
         public SyncHub(Context context)
         {
@@ -18,7 +21,7 @@ namespace Networking.Hubs
 
         public SyncResponse Sync(SyncRequest request)
         {
-            SyncResponse response = new SyncResponse() { Success = false };
+            SyncResponse response = new() { Success = false };
 
             if (request.LastId.HasValue)
             {
