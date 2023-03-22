@@ -2,15 +2,18 @@
 using Makaretu.Dns;
 using Microsoft.AspNetCore.SignalR.Client;
 using Networking.Hubs;
+using Serilog;
 
 namespace Networking.Data
 {
     public class HubInstances
     {
+        private readonly ILogger logger;
         private List<HubInstance> Instances { get; set; }
 
         public HubInstances()
         {
+            logger = Log.ForContext<HubInstances>();
             Instances = new List<HubInstance>();
         }
 
@@ -19,27 +22,37 @@ namespace Networking.Data
             string host = address.Name.ToString();
             if (!Instances.Any(q => q.Host == host && q.Type == typeof(T)))
             {
-                HubConnection connection = new HubConnectionBuilder()
-                .WithUrl(string.Format("https://{0}:44487/{1}", address.Address, GetEndpoint<T>()), options =>
+                try
                 {
-                    options.HttpMessageHandlerFactory = (message) =>
+                    HubConnection connection = new HubConnectionBuilder()
+                    .WithUrl(string.Format("https://{0}:44487/{1}", address.Address, GetEndpoint<T>()), options =>
                     {
-                        if (message is HttpClientHandler clientHandler)
-                            clientHandler.ServerCertificateCustomValidationCallback +=
-                                (sender, certificate, chain, sslPolicyErrors) => { return true; };
-                        return message;
-                    };
-                })
-                .WithAutomaticReconnect()
-                .Build();
-                connection.StartAsync().GetAwaiter().GetResult();
-                connection.Closed += Connection_Closed;
-                Instances.Add(new HubInstance()
+                        options.HttpMessageHandlerFactory = (message) =>
+                        {
+                            if (message is HttpClientHandler clientHandler)
+                                clientHandler.ServerCertificateCustomValidationCallback +=
+                                    (sender, certificate, chain, sslPolicyErrors) => { return true; };
+                            return message;
+                        };
+                    })
+                    .WithAutomaticReconnect()
+                    .Build();
+                    connection.StartAsync().GetAwaiter().GetResult();
+                    connection.Closed += Connection_Closed;
+                    Instances.Add(new HubInstance()
+                    {
+                        Host = host,
+                        Type = typeof(T),
+                        Connection = connection
+                    });
+                    logger.Information("Connection has been established with {host} for {type}", host, typeof(T));
+                } catch (Exception ex)
                 {
-                    Host = host,
-                    Type = typeof(T),
-                    Connection = connection
-                });
+                    logger.Error("Failed to establish connection with {host} for {type} {ex}", host, typeof(T), ex);
+                }
+            } else
+            {
+                logger.Information("Connection with {host} for {type} already exists", host, typeof(T));
             }
         }
 
@@ -47,7 +60,8 @@ namespace Networking.Data
         {
             return Task.Run(() =>
             {
-                Instances.RemoveAll(q => q.Connection.State == HubConnectionState.Disconnected);
+                int count = Instances.RemoveAll(q => q.Connection.State == HubConnectionState.Disconnected);
+                logger.Information("Removed {count} disconnected connection(s)", count);
             });
         }
 

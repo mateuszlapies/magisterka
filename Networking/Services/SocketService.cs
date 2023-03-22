@@ -3,15 +3,20 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
 using Networking.Hubs;
+using Serilog;
 
 namespace Networking.Services
 {
     public class SocketService
     {
+        private static readonly ILogger logger = Log.ForContext<SocketService>();
+
         public static List<Link> Sync(Guid? lastId)
         {
             List<Link> links = new();
-            if (HubService.Instances.Count<SyncHub>() > 0)
+            int count = HubService.Instances.Count<SyncHub>();
+            logger.Information("{count} connections has been found fo Sync", count);
+            if (count > 0)
             {
                 SyncRequest request = new()
                 {

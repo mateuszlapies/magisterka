@@ -8,10 +8,13 @@ namespace Networking.Services
 {
     public class HubService
     {
+
+        private static readonly ILogger logger = Log.ForContext<HubService>();
+
+        private static bool synced = false;
+
         private static readonly string service = "blockchain";
         private static readonly string instance = Environment.MachineName;
-
-        private static readonly ILogger logger = Log.ForContext(typeof(HubService));
 
         public static HubInstances Instances { get; set; }
 
@@ -39,11 +42,18 @@ namespace Networking.Services
 
                 multicastService.NetworkInterfaceDiscovered += (s, e) =>
                 {
-                    foreach (NetworkInterface nic in e.NetworkInterfaces)
-                    {
-                        logger.Information("NIC discovered: {name}", nic.Name);
-                    }
                     serviceDiscovery.QueryServiceInstances(serviceName);
+                };
+
+                multicastService.QueryReceived += (s, e) =>
+                {
+                    if (synced && e.Message.IsQuery)
+                    {
+                        if (e.Message.Questions.Any(q => q.Type == DnsType.PTR && q.Name.ToString().Contains(service) && !q.Name.ToString().Contains(instance)))
+                        {
+                            serviceDiscovery.Announce(serviceProfile);
+                        }
+                    }
                 };
 
                 serviceDiscovery.ServiceInstanceDiscovered += (s, e) =>
@@ -51,7 +61,6 @@ namespace Networking.Services
                     string name = e.ServiceInstanceName.ToString();
                     if (!name.Contains(instance) && name.Contains(service))
                     {
-                        logger.Information("Service Instance discovered: {name}", e.ServiceInstanceName);
                         multicastService.SendQuery(e.ServiceInstanceName, type: DnsType.SRV);
                     }
                 };
@@ -63,7 +72,6 @@ namespace Networking.Services
                     {
                         if (!srv.Target.ToString().Contains(instance) && srv.Name.ToString().Contains(service))
                         {
-                            logger.Information("Host {host} has been discovered", srv.Target, srv.Name);
                             multicastService.SendQuery(srv.Target, type: DnsType.A);
                         }
                     }
@@ -77,9 +85,11 @@ namespace Networking.Services
 
                             if (!addressName.Contains(instance) && addressName.Contains(service))
                             {
-                                if (address.Address.ToString().StartsWith("192.") || address.Address.ToString().StartsWith("10."))
+                                if (address.Address.ToString().StartsWith("192.")
+                                || address.Address.ToString().StartsWith("10.") 
+                                || address.Address.ToString().StartsWith("172."))
                                 {
-                                    logger.Information("Host {host} at {service} has been discovered", address.Name, address.Address);
+                                    logger.Information("Establishing connections with host {host} at {address}", address.Name, address.Address);
                                     Instances.Add<SyncHub>(address);
                                     Instances.Add<LockHub>(address);
                                 }
@@ -92,9 +102,14 @@ namespace Networking.Services
             }
         }
 
+        private static void MulticastService_QueryReceived(object? sender, MessageEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         public static void Sync()
         {
-            serviceDiscovery.Announce(serviceProfile);
+            synced = true;
         }
 
         public static void Close()

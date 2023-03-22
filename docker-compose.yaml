@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  magisterka:
+    build: .
+    deploy:
+      mode: replicated
+      replicas: 10

@@ -3,11 +3,13 @@ using Blockchain.Model;
 using Microsoft.AspNetCore.SignalR;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
+using Serilog;
 
 namespace Networking.Hubs
 {
     public class SyncHub : Hub, IHub
     {
+        private readonly ILogger logger;
         private readonly Context context;
 
         private static readonly string _endpoint = "sync";
@@ -15,12 +17,13 @@ namespace Networking.Hubs
 
         public SyncHub(Context context)
         {
+            this.logger = Log.ForContext<SyncHub>();
             this.context = context;
         }
 
-
         public SyncResponse Sync(SyncRequest request)
         {
+            logger.Information("Received Sync request for id: {id}", request?.LastId);
             SyncResponse response = new() { Success = false };
 
             if (request.LastId.HasValue)
