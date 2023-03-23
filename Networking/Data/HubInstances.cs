@@ -50,9 +50,6 @@ namespace Networking.Data
                 {
                     logger.Error("Failed to establish connection with {host} for {type} {ex}", host, typeof(T), ex);
                 }
-            } else
-            {
-                logger.Information("Connection with {host} for {type} already exists", host, typeof(T));
             }
         }
 
