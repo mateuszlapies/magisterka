@@ -86,7 +86,7 @@ namespace Networking.Services
                             if (!addressName.Contains(instance) && addressName.Contains(service))
                             {
                                 if (address.Address.ToString().StartsWith("10.")
-                                    || address.Address.ToString().StartsWith("172.")
+                                    //|| address.Address.ToString().StartsWith("172.")
                                     || address.Address.ToString().StartsWith("192."))
                                 {
                                     logger.Information("Establishing connections with host {host} at {address}", address.Name, address.Address);
