@@ -20,7 +20,11 @@ namespace Application.Controllers
         [HttpPost]
         public LockResponse Lock(LockRequest request)
         {
-            Link link = context.Get(request.LockId);
+            Link link = null;
+            if (request.LockId.HasValue)
+            {
+                link = context.Get(request.LockId.Value);
+            }
             Link last = context.GetLastLink();
 
             if (link != null && last != null)
