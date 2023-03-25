@@ -19,11 +19,11 @@ namespace Application.Services
 
         public bool CreateUser(string username)
         {
-            if (context.Synced)
+            if (Context.Synced)
             {
                 if (!context.Get<User>().Any(q => (q.Object as User).UserName == username))
                 {
-                    var lastId = context.GetLastLink().Id;
+                    var lastId = context.GetLastLink()?.Id;
                     var id = context.Add<User>(new User()
                     {
                         UserName = username,

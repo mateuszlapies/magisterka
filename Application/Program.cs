@@ -1,4 +1,5 @@
 using Application.Jobs;
+using Application.Services;
 using Application.Utils;
 using Blockchain.Contexts;
 using ElectronNET.API;
@@ -40,6 +41,8 @@ builder.Services.AddTransient<Context>();
 builder.Services.AddTransient<PublicContext>();
 
 builder.Services.AddTransient<EndpointService>();
+builder.Services.AddTransient<RSAService>();
+builder.Services.AddTransient<UserService>();
 
 var app = builder.Build();
 

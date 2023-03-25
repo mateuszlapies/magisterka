@@ -31,14 +31,13 @@ namespace Application.Jobs
                 {
                     logger.LogError("Wrong chain has been received");
                     context.Remove(links);
-                } else
-                {
-                    context.Synced = true;
                 }
             } else
             {
                 logger.LogInformation("No new links have been found");
             }
+            Context.Synced = true;
+            EndpointService.Query();
         }
     }
 }

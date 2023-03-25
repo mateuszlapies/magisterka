@@ -102,6 +102,11 @@ namespace Networking.Services
             }
         }
 
+        public static void Query()
+        {
+            serviceDiscovery.QueryServiceInstances(serviceName);
+        }
+
         public static void Sync()
         {
             if (!synced)

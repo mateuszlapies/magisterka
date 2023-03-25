@@ -37,7 +37,7 @@ namespace Networking.Services
             return links;
         }
 
-        public static bool Lock(Guid lockId, Guid nextId, string owner)
+        public static bool Lock(Guid? lockId, Guid nextId, string owner)
         {
             LockRequest request = new()
             {

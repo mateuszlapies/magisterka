@@ -8,7 +8,7 @@ namespace Blockchain.Contexts
 {
     public class Context
     {
-        public bool Synced { get; set; }
+        public static bool Synced { get; set; }
 
         private Guid lastId;
         private readonly LiteDatabase database;
