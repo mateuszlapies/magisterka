@@ -8,6 +8,8 @@ namespace Blockchain.Contexts
 {
     public class Context
     {
+        public bool Synced { get; set; }
+
         private Guid lastId;
         private readonly LiteDatabase database;
         private readonly ILiteCollection<Link> chain;
@@ -31,6 +33,11 @@ namespace Blockchain.Contexts
         public List<Link> Get()
         {
             return chain.FindAll().ToList();
+        }
+
+        public List<Link> Get<T>()
+        {
+            return chain.Query().Where(q => q.ObjectType == typeof(T).ToString()).ToList();
         }
 
         public void Add(Link link)

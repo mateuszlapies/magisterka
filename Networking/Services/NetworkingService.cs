@@ -46,17 +46,35 @@ namespace Networking.Services
                 Owner = owner
             };
 
-            List<Task<LockResponse>> tasks = new();
+            var tasks = new List<Task>();
 
-            foreach(LockEndpoint c in EndpointService.Instances.Get<LockEndpoint>()) { 
-                tasks.Add(c.Request(request));
+            var successes = new List<LockEndpoint>();
+            var failures = new Dictionary<LockEndpoint, LockResponse>();
+
+            foreach(LockEndpoint c in EndpointService.Instances.Get<LockEndpoint>()) {
+                tasks.Add(Task.Factory.StartNew(async () =>
+                {
+                    var response = await c.Request(request);
+                    if (response.Success)
+                    {
+                        successes.Add(c);
+                    }
+                    else
+                    {
+                        failures.Add(c, response);
+                    }
+                }));
             };
 
             Task.WaitAll(tasks.ToArray());
 
-            KeyValuePair<bool, int> success = tasks.GroupBy(g => g.Result.Success).Select(s => new KeyValuePair<bool, int>(s.Key, s.Count())).OrderByDescending(o => o.Value).First();
-            //TO DO: Implement behaviour when the guid is already locked
-            return success.Key;
+            if (successes.Count > failures.Count)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
         }
     }
 }

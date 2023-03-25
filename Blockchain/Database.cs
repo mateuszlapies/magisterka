@@ -21,7 +21,6 @@ namespace Blockchain
                     {
                         database = new LiteDatabase(file, GetMapper());
                     }
-                    
                 #else
                     string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Magisterka");
                     if (!Directory.Exists(path))

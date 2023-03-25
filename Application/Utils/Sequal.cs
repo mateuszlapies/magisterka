@@ -1,4 +1,7 @@
-﻿namespace Application.Utils
+﻿using Blockchain;
+using LiteDB;
+
+namespace Application.Utils
 {
     public class Sequal
     {
@@ -7,7 +10,14 @@
         public static string ConnectionString()
         {
             #if DEBUG
-                return Path.Combine("bin/Debug/net7.0", file);
+                if (!Directory.GetCurrentDirectory().Contains("bin"))
+                {
+                    return Path.Combine("bin/Debug/net7.0", file);
+                }
+                else
+                {
+                return file;
+                }
             #else
                 return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), file);
             #endif

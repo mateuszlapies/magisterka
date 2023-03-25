@@ -30,10 +30,9 @@ namespace TestUtils
 
         public static string GetOwner()
         {
-            string owner = Convert.ToBase64String(rsa.ExportRSAPublicKey());
             using RSACryptoServiceProvider rsaService = new();
-            rsa.ImportParameters(GetPrivate());
-            byte[] unsigned = Encoding.ASCII.GetBytes(owner);
+            rsaService.ImportParameters(GetPrivate());
+            byte[] unsigned = rsa.ExportRSAPublicKey();
             byte[] signed = rsaService.SignData(unsigned, SHA256.Create());
             return Convert.ToBase64String(signed);
         }
