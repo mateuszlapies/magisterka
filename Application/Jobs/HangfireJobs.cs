@@ -15,8 +15,8 @@ namespace Application.Jobs
         {
             return Task.Run(() =>
             {
+                Thread.Sleep(10000);
                 string syncId = "Sync";
-                BackgroundJob.Enqueue<SyncJob>(x => x.Run());
                 RecurringJob.AddOrUpdate<SyncJob>(syncId, x => x.Run(), Cron.Minutely);
                 jobsId.Add(syncId);
             }, cancellationToken);

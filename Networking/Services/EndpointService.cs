@@ -1,22 +1,19 @@
 ﻿using Makaretu.Dns;
-using Networking.Data;
+using Networking.Endpoints.Instances;
 using Networking.Hubs;
 using Serilog;
-using System.Net.NetworkInformation;
 
 namespace Networking.Services
 {
-    public class HubService
+    public class EndpointService
     {
-
-        private static readonly ILogger logger = Log.ForContext<HubService>();
-
         private static bool synced = false;
+        public static EndpointInstances Instances { get; set; }
+
+        private static readonly ILogger logger = Log.ForContext<EndpointService>();
 
         private static readonly string service = "blockchain";
         private static readonly string instance = Environment.MachineName;
-
-        public static HubInstances Instances { get; set; }
 
         private static MulticastService multicastService;
         private static ServiceDiscovery serviceDiscovery;
@@ -38,10 +35,13 @@ namespace Networking.Services
             {
                 serviceDiscovery = new ServiceDiscovery(multicastService);
 
-                serviceDiscovery.Advertise(serviceProfile);
-
                 multicastService.NetworkInterfaceDiscovered += (s, e) =>
                 {
+                    foreach (var nic in e.NetworkInterfaces)
+                    {
+                        logger.Information("Network: {name}", nic.Name);
+                    }
+                    
                     serviceDiscovery.QueryServiceInstances(serviceName);
                 };
 
@@ -85,13 +85,13 @@ namespace Networking.Services
 
                             if (!addressName.Contains(instance) && addressName.Contains(service))
                             {
-                                if (address.Address.ToString().StartsWith("192.")
-                                || address.Address.ToString().StartsWith("10.") 
-                                || address.Address.ToString().StartsWith("172."))
+                                if (address.Address.ToString().StartsWith("10.")
+                                    || address.Address.ToString().StartsWith("172.")
+                                    || address.Address.ToString().StartsWith("192."))
                                 {
                                     logger.Information("Establishing connections with host {host} at {address}", address.Name, address.Address);
-                                    Instances.Add<SyncHub>(address);
-                                    Instances.Add<LockHub>(address);
+                                    Instances.Add<SyncEndpoint>(address);
+                                    Instances.Add<LockEndpoint>(address);
                                 }
                             }
                         }
@@ -102,14 +102,14 @@ namespace Networking.Services
             }
         }
 
-        private static void MulticastService_QueryReceived(object? sender, MessageEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         public static void Sync()
         {
-            synced = true;
+            if (!synced)
+            {
+                synced = true;
+                serviceDiscovery.Advertise(serviceProfile);
+                serviceDiscovery.Announce(serviceProfile);
+            }
         }
 
         public static void Close()
@@ -118,7 +118,7 @@ namespace Networking.Services
             multicastService.Start();
         }
 
-        public static HubInstances Connections()
+        public static EndpointInstances Connections()
         {
             Instances ??= new();
 

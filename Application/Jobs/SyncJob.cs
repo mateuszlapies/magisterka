@@ -22,7 +22,7 @@ namespace Application.Jobs
         {
             Guid? lastId = context.GetLastLink()?.Id;
             logger.LogInformation("Sending Sync requests for last link id: {lastId}", lastId);
-            List<Link> links = SocketService.Sync(lastId);
+            List<Link> links = NetworkingService.Sync(lastId);
             if (links.Count > 0)
             {
                 logger.LogInformation("Received {amount} link(s)", links.Count);
@@ -36,7 +36,6 @@ namespace Application.Jobs
             {
                 logger.LogInformation("No new links have been found");
             }
-            
         }
     }
 }

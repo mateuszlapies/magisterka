@@ -5,7 +5,7 @@ using ElectronNET.API;
 using ElectronNET.API.Entities;
 using Hangfire;
 using Hangfire.Storage.SQLite;
-using Networking.Hubs;
+using Microsoft.OpenApi.Models;
 using Networking.Services;
 using Serilog;
 
@@ -19,10 +19,14 @@ builder.Host.UseSerilog();
 
 builder.WebHost.UseElectron(args);
 
-builder.Services.AddSignalR();
 builder.Services.AddElectron();
 builder.Services.AddHangfireServer();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" });
+});
 
 builder.Services.AddHangfire(configuration => configuration
             .UseSimpleAssemblyNameTypeSerializer()
@@ -30,12 +34,12 @@ builder.Services.AddHangfire(configuration => configuration
             .UseSQLiteStorage(Sequal.ConnectionString()));
 
 builder.Services.AddHostedService<HangfireJobs>();
-builder.Services.AddHostedService<HubHostedService>();
+builder.Services.AddHostedService<EndpointHostedService>();
 
 builder.Services.AddTransient<Context>();
 builder.Services.AddTransient<PublicContext>();
 
-builder.Services.AddTransient<HubService>();
+builder.Services.AddTransient<EndpointService>();
 
 var app = builder.Build();
 
@@ -49,6 +53,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 } else
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.UseHangfireDashboard();
     app.MapHangfireDashboard();
 }
@@ -62,9 +68,6 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html");
-
-app.MapHub<SyncHub>(SyncHub.Endpoint);
-app.MapHub<LockHub>(LockHub.Endpoint);
 
 app.Run();
 

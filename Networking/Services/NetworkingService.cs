@@ -1,5 +1,4 @@
 ﻿using Blockchain.Model;
-using Microsoft.AspNetCore.SignalR.Client;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
 using Networking.Hubs;
@@ -7,15 +6,15 @@ using Serilog;
 
 namespace Networking.Services
 {
-    public class SocketService
+    public class NetworkingService
     {
-        private static readonly ILogger logger = Log.ForContext<SocketService>();
+        private static readonly ILogger logger = Log.ForContext<NetworkingService>();
 
         public static List<Link> Sync(Guid? lastId)
         {
             List<Link> links = new();
-            int count = HubService.Instances.Count<SyncHub>();
-            logger.Information("{count} connections has been found fo Sync", count);
+            int count = EndpointService.Instances.Count<SyncEndpoint>();
+            logger.Information("{count} connections has been found for Sync", count);
             if (count > 0)
             {
                 SyncRequest request = new()
@@ -25,16 +24,16 @@ namespace Networking.Services
 
                 List<Task<SyncResponse>> tasks = new();
 
-                foreach (HubConnection c in HubService.Instances.Get<SyncHub>())
+                foreach (SyncEndpoint c in EndpointService.Instances.Get<SyncEndpoint>())
                 {
-                    tasks.Add(c.InvokeAsync<SyncResponse>("Sync", request));
+                    tasks.Add(c.Request(request));
                 }
 
                 Task.WaitAll(tasks.ToArray());
 
                 tasks.ForEach(t => links = links.Union(t.Result.Links).ToList());
             }
-            HubService.Sync();
+            EndpointService.Sync();
             return links;
         }
 
@@ -49,8 +48,8 @@ namespace Networking.Services
 
             List<Task<LockResponse>> tasks = new();
 
-            foreach(HubConnection c in HubService.Instances.Get<LockHub>()) { 
-                tasks.Add(c.InvokeAsync<LockResponse>("Lock", request));
+            foreach(LockEndpoint c in EndpointService.Instances.Get<LockEndpoint>()) { 
+                tasks.Add(c.Request(request));
             };
 
             Task.WaitAll(tasks.ToArray());

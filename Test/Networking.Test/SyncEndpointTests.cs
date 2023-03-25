@@ -7,19 +7,19 @@ using TestUtils;
 
 namespace Networking.Test
 {
-    public class SyncHubTests
+    public class SyncEndpointTests
     {
         private readonly Context context;
         private readonly RSAParameters parameters;
 
-        private readonly SyncHub syncHub;
+        private readonly SyncEndpoint syncEndpoint;
 
-        public SyncHubTests()
+        public SyncEndpointTests()
         {
             context = new Context();
             parameters = RSAHelper.GetPrivate();
 
-            syncHub = new SyncHub(context);
+            syncEndpoint = new SyncEndpoint();
         }
 
         [SetUp]
@@ -29,11 +29,11 @@ namespace Networking.Test
         }
 
         [Test]
-        public void SyncTestSuccessAll()
+        public async Task SyncTestSuccessAll()
         {
             TestObjectHelper.Add(context, parameters, 1000);
             SyncRequest request = new();
-            SyncResponse response = syncHub.Sync(request);
+            SyncResponse response = await syncEndpoint.Request(request);
             Assert.Multiple(() =>
             {
                 Assert.That(response, Is.Not.Null);
@@ -43,12 +43,12 @@ namespace Networking.Test
         }
 
         [Test]
-        public void SyncTestSuccessNotAll()
+        public async Task SyncTestSuccessNotAll()
         {
             Guid lastId = TestObjectHelper.Add(context, parameters, 500);
             TestObjectHelper.Add(context, parameters, 500);
             SyncRequest request = new() { LastId = lastId };
-            SyncResponse response = syncHub.Sync(request);
+            SyncResponse response = await syncEndpoint.Request(request);
             Assert.Multiple(() =>
             {
                 Assert.That(response, Is.Not.Null);

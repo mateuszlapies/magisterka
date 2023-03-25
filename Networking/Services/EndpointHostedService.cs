@@ -2,12 +2,12 @@
 
 namespace Networking.Services
 {
-    public class HubHostedService : IHostedService
+    public class EndpointHostedService : IHostedService
     {
         public Task StartAsync(CancellationToken cancellationToken)
         {
             return Task.Run(() => {
-                HubService.Init();
+                EndpointService.Init();
             }, cancellationToken);
         }
 
@@ -15,7 +15,7 @@ namespace Networking.Services
         {
             return Task.Run(() =>
             {
-                HubService.Close();
+                EndpointService.Close();
             }, cancellationToken);
         }
     }

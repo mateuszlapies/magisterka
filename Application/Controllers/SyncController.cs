@@ -1,32 +1,31 @@
 ﻿using Blockchain.Contexts;
 using Blockchain.Model;
-using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Mvc;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
-using Serilog;
 
-namespace Networking.Hubs
+namespace Application.Controllers
 {
-    public class SyncHub : Hub, IHub
+    [ApiController]
+    [Route("/api/[controller]")]
+    public class SyncController
     {
-        private readonly ILogger logger;
+        private readonly ILogger<SyncController> logger;
         private readonly Context context;
 
-        private static readonly string _endpoint = "sync";
-        public static string Endpoint { get { return _endpoint; } }
-
-        public SyncHub(Context context)
+        public SyncController(ILogger<SyncController> logger, Context context)
         {
-            this.logger = Log.ForContext<SyncHub>();
+            this.logger = logger;
             this.context = context;
         }
 
+        [HttpPost]
         public SyncResponse Sync(SyncRequest request)
         {
-            logger.Information("Received Sync request for id: {id}", request?.LastId);
+            logger.LogInformation("Received Sync request for id: {id}", request?.LastId);
             SyncResponse response = new() { Success = false };
 
-            if (request.LastId.HasValue)
+            if (request != null && request.LastId.HasValue)
             {
                 Link link = context.Get(request.LastId.Value);
                 if (link == null)

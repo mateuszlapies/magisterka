@@ -8,19 +8,19 @@ using TestUtils;
 
 namespace Networking.Test
 {
-    public class LockHubTests
+    public class LockEndpointTests
     {
         private readonly Context context;
         private readonly RSAParameters parameters;
 
-        private LockHub lockHub;
+        private LockEndpoint lockEndpoint;
 
-        public LockHubTests()
+        public LockEndpointTests()
         {
             context = new Context();
             parameters = RSAHelper.GetPrivate();
 
-            lockHub = new LockHub(context);
+            lockEndpoint = new LockEndpoint();
         }
 
         [SetUp]
@@ -30,7 +30,7 @@ namespace Networking.Test
         }
 
         [Test]
-        public void LockTestSuccess()
+        public async Task LockTestSuccess()
         {
             Guid id = TestObjectHelper.Add(context, parameters);
             LockRequest request = new LockRequest()
@@ -39,7 +39,7 @@ namespace Networking.Test
                 NextId = Guid.NewGuid(),
                 Owner = RSAHelper.GetOwner()
             };
-            LockResponse response = lockHub.Lock(request);
+            LockResponse response = await lockEndpoint.Request(request);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.Success, Is.True);
@@ -54,7 +54,7 @@ namespace Networking.Test
         }
 
         [Test]
-        public void LockTestFailure()
+        public async Task LockTestFailure()
         {
             Guid id = TestObjectHelper.Add(context, parameters);
             LockRequest request = new LockRequest()
@@ -63,7 +63,7 @@ namespace Networking.Test
                 NextId = Guid.NewGuid(),
                 Owner = RSAHelper.GetOwner()
             };
-            LockResponse response = lockHub.Lock(request);
+            LockResponse response = await lockEndpoint.Request(request);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.Success, Is.True);
@@ -80,7 +80,7 @@ namespace Networking.Test
 
             request.NextId = Guid.NewGuid();
 
-            response = lockHub.Lock(request);
+            response = await lockEndpoint.Request(request);
 
             Assert.That(response, Is.Not.Null);
             Assert.That(response.Success, Is.False);
