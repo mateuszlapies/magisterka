@@ -14,17 +14,21 @@ namespace Networking.Endpoints.Instances
             Instances = new List<EndpointInstance>();
         }
 
-        public void Add<T>(AddressRecord address) where T : Endpoint
+        public async Task Add<T>(AddressRecord address) where T : Endpoint
         {
             string host = address.Name.ToString();
             if (!Instances.Any(q => q.Host == host && q.Type == typeof(T)))
             {
-                Instances.Add(new EndpointInstance()
+                var instance = new EndpointInstance()
                 {
                     Host = host,
                     Type = typeof(T),
                     Address = address.Address.ToString()
-                });
+                };
+                if (await instance.Test())
+                {
+                    Instances.Add(instance);
+                }
             }
         }
 

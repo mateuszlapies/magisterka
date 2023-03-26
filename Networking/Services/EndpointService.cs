@@ -66,7 +66,7 @@ namespace Networking.Services
                     }
                 };
 
-                multicastService.AnswerReceived += (s, e) =>
+                multicastService.AnswerReceived += async (s, e) =>
                 {
                     IEnumerable<SRVRecord> services = e.Message.Answers.OfType<SRVRecord>();
                     foreach (SRVRecord srv in services)
@@ -91,8 +91,8 @@ namespace Networking.Services
                                     || address.Address.ToString().StartsWith("192."))
                                 {
                                     logger.Information("Establishing connections with host {host} at {address}", address.Name, address.Address);
-                                    Instances.Add<SyncEndpoint>(address);
-                                    Instances.Add<LockEndpoint>(address);
+                                    await Instances.Add<SyncEndpoint>(address);
+                                    await Instances.Add<LockEndpoint>(address);
                                 }
                             }
                         }
@@ -105,7 +105,7 @@ namespace Networking.Services
 
         public static void Announce()
         {
-            serviceDiscovery.Advertise(serviceProfile);
+            serviceDiscovery.Announce(serviceProfile);
         }
 
         public static void Query()
