@@ -11,11 +11,11 @@ namespace Application.Jobs
     {
         private readonly ILogger<SyncJob> logger;
         private readonly Context context;
-        
+
         public SyncJob(ILogger<SyncJob> logger, Context context)
         {
             this.logger = logger;
-            this.context = context;          
+            this.context = context;
         }
 
         public void Run()

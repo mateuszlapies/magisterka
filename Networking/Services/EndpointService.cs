@@ -103,6 +103,11 @@ namespace Networking.Services
             }
         }
 
+        public static void Announce()
+        {
+            serviceDiscovery.Announce(serviceProfile);
+        }
+
         public static void Query()
         {
             serviceDiscovery.QueryServiceInstances(serviceName);

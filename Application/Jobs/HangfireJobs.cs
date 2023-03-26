@@ -15,10 +15,12 @@ namespace Application.Jobs
         {
             return Task.Run(() =>
             {
-                Thread.Sleep(10000);
                 string syncId = "Sync";
+                string annoId = "Anno";
                 RecurringJob.AddOrUpdate<SyncJob>(syncId, x => x.Run(), Cron.Minutely);
+                RecurringJob.AddOrUpdate<AnnounceJob>(annoId, x => x.Run(), Cron.Minutely);
                 jobsId.Add(syncId);
+                jobsId.Add(annoId);
             }, cancellationToken);
         }
 
