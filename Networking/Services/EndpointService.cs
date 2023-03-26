@@ -7,7 +7,6 @@ namespace Networking.Services
 {
     public class EndpointService
     {
-        private static bool synced = false;
         public static EndpointInstances Instances { get; set; }
 
         private static readonly ILogger logger = Log.ForContext<EndpointService>();
@@ -34,6 +33,8 @@ namespace Networking.Services
             if (multicastService != null && serviceDiscovery == null)
             {
                 serviceDiscovery = new ServiceDiscovery(multicastService);
+                serviceDiscovery.Advertise(serviceProfile);
+                //serviceDiscovery.Announce(serviceProfile);
 
                 multicastService.NetworkInterfaceDiscovered += (s, e) =>
                 {
@@ -47,7 +48,7 @@ namespace Networking.Services
 
                 multicastService.QueryReceived += (s, e) =>
                 {
-                    if (synced && e.Message.IsQuery)
+                    if (e.Message.IsQuery)
                     {
                         if (e.Message.Questions.Any(q => q.Type == DnsType.PTR && q.Name.ToString().Contains(service) && !q.Name.ToString().Contains(instance)))
                         {
@@ -105,16 +106,6 @@ namespace Networking.Services
         public static void Query()
         {
             serviceDiscovery.QueryServiceInstances(serviceName);
-        }
-
-        public static void Sync()
-        {
-            if (!synced)
-            {
-                synced = true;
-                serviceDiscovery.Advertise(serviceProfile);
-                serviceDiscovery.Announce(serviceProfile);
-            }
         }
 
         public static void Close()

@@ -9,10 +9,9 @@ RUN apt install nodejs npm dotnet-runtime-6.0 -y
 RUN dotnet tool install --global dotnet-certificate-tool
 RUN dotnet dev-certs https -ep cert.pfx
 RUN certificate-tool add --file cert.pfx
-RUN ls /usr/local/share/ca-certificates
 ADD ./ /root/src/
 WORKDIR /root/src/
 RUN mv Docker/.env.development.local Application/ClientApp/.env.development.local
 RUN dotnet build Magisterka.sln
 WORKDIR Application
-ENTRYPOINT dotnet run --project Application.csproj --launch-profile "Electron"
+ENTRYPOINT dotnet run --project Application.csproj --launch-profile "Application"
