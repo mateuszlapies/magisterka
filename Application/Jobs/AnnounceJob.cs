@@ -16,6 +16,7 @@ namespace Application.Jobs
 
         public void Run()
         {
+            logger.LogInformation("Announcing service using mdns");
             EndpointService.Announce();
         }
     }
