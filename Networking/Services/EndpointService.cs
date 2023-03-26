@@ -34,7 +34,7 @@ namespace Networking.Services
             {
                 serviceDiscovery = new ServiceDiscovery(multicastService);
                 serviceDiscovery.Advertise(serviceProfile);
-                //serviceDiscovery.Announce(serviceProfile);
+                serviceDiscovery.Announce(serviceProfile);
 
                 multicastService.NetworkInterfaceDiscovered += (s, e) =>
                 {
@@ -106,6 +106,7 @@ namespace Networking.Services
         public static void Announce()
         {
             serviceDiscovery.Advertise(serviceProfile);
+            serviceDiscovery.Announce(serviceProfile);
         }
 
         public static void Query()
