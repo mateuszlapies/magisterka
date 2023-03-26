@@ -105,7 +105,7 @@ namespace Networking.Services
 
         public static void Announce()
         {
-            serviceDiscovery.Announce(serviceProfile);
+            serviceDiscovery.Advertise(serviceProfile);
         }
 
         public static void Query()
