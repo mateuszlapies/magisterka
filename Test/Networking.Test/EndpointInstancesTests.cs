@@ -40,7 +40,7 @@ namespace Networking.Test
             var endpoint = endpoints.First();
             Assert.That(endpoint, Is.TypeOf<SyncEndpoint>());
             Assert.That(endpoint.InstanceAddress, Is.EqualTo("127.0.0.1"));
-            Assert.That(endpoint.EndpointAddress, Is.EqualTo("sync"));
+            Assert.That(endpoint.EndpointAddress, Is.EqualTo("Sync"));
         }
 
         private AddressRecord GetAddressRecord(string domain = "localhost", byte[]? ip = null)

@@ -33,8 +33,7 @@ namespace Application.Controllers
                 {
                     return new LockResponse()
                     {
-                        Success = false,
-                        Resync = true
+                        Success = false
                     };
                 }
             }
@@ -45,9 +44,7 @@ namespace Application.Controllers
                 {
                     return new LockResponse()
                     {
-                        Success = false,
-                        Resync = false,
-                        LockInsteadId = link.Lock.NextId
+                        Success = false
                     };
                 }
             }

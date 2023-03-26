@@ -93,18 +93,18 @@ async void ElectronBootstrap()
 
     MenuItem[] menu = new MenuItem[]
     {
-         new MenuItem
-         {
-             Label = "File",
-             Submenu=new MenuItem[]
-             {
-                 new MenuItem
-                 {
-                     Label ="Exit",
-                     Click =()=>{Electron.App.Exit();}
-                 }
-             }
-         }
+        new MenuItem
+        {
+            Label = "File",
+            Submenu=new MenuItem[]
+            {
+                new MenuItem
+                {
+                    Label ="Exit",
+                    Click =()=>{Electron.App.Exit();}
+                }
+            }
+        }
     };
 
     Electron.Menu.SetApplicationMenu(menu);

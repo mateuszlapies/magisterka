@@ -1,15 +1,18 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0
+FROM mcr.microsoft.com/dotnet/sdk
+ENV PATH="$PATH:/root/.dotnet/tools"
+RUN wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+RUN dpkg -i packages-microsoft-prod.deb
+RUN rm packages-microsoft-prod.deb
 RUN apt update
-RUN apt install nodejs npm -y
+RUN apt dist-upgrade -y
+RUN apt install nodejs npm dotnet-runtime-6.0 -y
+RUN dotnet tool install --global dotnet-certificate-tool
+RUN dotnet dev-certs https -ep cert.pfx
+RUN certificate-tool add --file cert.pfx
+RUN ls /usr/local/share/ca-certificates
 ADD ./ /root/src/
-RUN ls /root/src
-RUN dotnet dev-certs https -ep localhost.crt --format PEM
-RUN cp localhost.crt /usr/local/share/ca-certificates
-RUN update-ca-certificates
 WORKDIR /root/src/
-RUN chmod u+x Docker/run.sh
-RUN mv Docker/run.sh Application/ClientApp/run.sh
 RUN mv Docker/.env.development.local Application/ClientApp/.env.development.local
 RUN dotnet build Magisterka.sln
-WORKDIR Application/ClientApp/
-ENTRYPOINT bash run.sh
+WORKDIR Application
+ENTRYPOINT dotnet run --project Application.csproj --launch-profile "Electron"

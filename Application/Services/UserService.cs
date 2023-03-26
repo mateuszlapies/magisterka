@@ -31,12 +31,13 @@ namespace Application.Services
                     }, rsa.GetParameters(true));
                     if (NetworkingService.Lock(lastId, id, rsa.GetOwner()))
                     {
-                        logger.LogInformation("Success");
+                        logger.LogInformation("Successfully created user {username}", username);
+                        return true;
                     } else
                     {
-                        logger.LogError("Failure");
+                        logger.LogError("Failed to create user {username}. Failed to lock", username);
+                        context.Remove(context.Get(id));
                     }
-                    return true;
                 }
                 else
                 {

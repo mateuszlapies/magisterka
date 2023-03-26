@@ -68,7 +68,7 @@ namespace Networking.Services
 
             Task.WaitAll(tasks.ToArray());
 
-            if (successes.Count > failures.Count)
+            if (successes.Count == 0 && failures.Count == 0 && successes.Count > failures.Count)
             {
                 return true;
             } else

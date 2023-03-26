@@ -1,5 +1,6 @@
 ﻿using Blockchain.Model;
 using LiteDB;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -10,7 +11,7 @@ namespace Blockchain.Contexts
     {
         public static bool Synced { get; set; }
 
-        private Guid lastId;
+        private Guid? lastId;
         private readonly LiteDatabase database;
         private readonly ILiteCollection<Link> chain;
 
@@ -25,7 +26,7 @@ namespace Blockchain.Contexts
             chain.DeleteAll();
         }
 
-        public Link Get(Guid id)
+        public Link Get(Guid? id)
         {
             return chain.FindOne(q => q.Id == id);
         }
@@ -42,14 +43,26 @@ namespace Blockchain.Contexts
 
         public void Add(Link link)
         {
+            var lastLink = GetLastLink();
+            if (lastLink != null)
+            {
+                if (lastLink.Lock.Expires <= DateTime.UtcNow
+                    || !VerifyOwner(link.Signature.Owner, lastLink.Lock.Owner)
+                    || lastLink.Lock.NextId == link.Id && lastLink.Id == link.LastId)
+                {
+                    throw new ValidationException();
+                }
+            }
             chain.Insert(link);
             lastId = link.Id;
         }
 
         public void Add(IEnumerable<Link> links)
         {
-            chain.InsertBulk(links);
-            CalculateLastLink();
+            foreach (var link in links)
+            {
+                Add(link);
+            }
         }
 
         public Guid Add<T>(T obj, RSAParameters key)
@@ -109,9 +122,15 @@ namespace Blockchain.Contexts
             }
         }
 
-        public Link GetLastLink()
+        public Link? GetLastLink()
         {
-            return Get(lastId);
+            if (lastId.HasValue)
+            {
+                return Get(lastId.Value);
+            } else
+            {
+                return null;
+            }
         }
 
         private void CalculateLastLink()
@@ -126,15 +145,15 @@ namespace Blockchain.Contexts
                     link = temp;
                 }
             }
-            lastId = link.Id;
+            lastId = link != null ? link.Id : null;
         }
 
-        private static string Serialize(Link link)
+        private string Serialize(Link link)
         {
             return JsonSerializer.Serialize(link);
         }
 
-        private static Signature Sign(Link link, RSAParameters key)
+        private Signature Sign(Link link, RSAParameters key)
         {
             string json = Serialize(link);
             using RSACryptoServiceProvider rsa = new();
@@ -149,7 +168,7 @@ namespace Blockchain.Contexts
             return signature;
         }
 
-        private static bool Verify(Link link)
+        private bool Verify(Link link)
         {
             Signature hash = link.Signature;
             link.Signature = null;
@@ -158,6 +177,15 @@ namespace Blockchain.Contexts
             rsa.ImportRSAPublicKey(Convert.FromBase64String(hash.Owner), out int bytesRead);
             byte[] unsigned = Encoding.ASCII.GetBytes(json);
             byte[] signed = Convert.FromBase64String(hash.Hash);
+            return rsa.VerifyData(unsigned, SHA256.Create(), signed);
+        }
+
+        private bool VerifyOwner(string owner, string ownerHash)
+        {
+            using RSACryptoServiceProvider rsa = new();
+            rsa.ImportRSAPublicKey(Convert.FromBase64String(owner), out int bytesRead);
+            byte[] unsigned = Convert.FromBase64String(owner);
+            byte[] signed = Convert.FromBase64String(ownerHash);
             return rsa.VerifyData(unsigned, SHA256.Create(), signed);
         }
     }
