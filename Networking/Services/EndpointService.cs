@@ -33,8 +33,6 @@ namespace Networking.Services
             if (multicastService != null && serviceDiscovery == null)
             {
                 serviceDiscovery = new ServiceDiscovery(multicastService);
-                serviceDiscovery.Advertise(serviceProfile);
-                serviceDiscovery.Announce(serviceProfile);
 
                 multicastService.NetworkInterfaceDiscovered += (s, e) =>
                 {
@@ -42,8 +40,10 @@ namespace Networking.Services
                     {
                         logger.Information("Network: {name}", nic.Name);
                     }
-                    
                     serviceDiscovery.QueryServiceInstances(serviceName);
+
+                    serviceDiscovery.Advertise(serviceProfile);
+                    serviceDiscovery.Announce(serviceProfile);
                 };
 
                 multicastService.QueryReceived += (s, e) =>
