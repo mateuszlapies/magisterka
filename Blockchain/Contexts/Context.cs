@@ -3,6 +3,7 @@ using LiteDB;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
+using System.Linq;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Blockchain.Contexts
@@ -14,16 +15,20 @@ namespace Blockchain.Contexts
         private Guid? lastId;
         private readonly LiteDatabase database;
         private readonly ILiteCollection<Link> chain;
+        private readonly ILiteCollection<Link> temp;
 
         public Context()
         {
-            this.database = Database.Instance();
-            chain = this.database.GetCollection<Link>("chain");
+            database = Database.Instance();
+            chain = database.GetCollection<Link>("chain");
+            temp = database.GetCollection<Link>("temp");
+            temp.DeleteAll();
         }
 
         public void Clear()
         {
             chain.DeleteAll();
+            temp.DeleteAll();
         }
 
         public Link Get(Guid? id)
@@ -53,8 +58,7 @@ namespace Blockchain.Contexts
                     throw new ValidationException();
                 }
             }
-            chain.Insert(link);
-            lastId = link.Id;
+            temp.Insert(link);
         }
 
         public void Add(IEnumerable<Link> links)
@@ -79,20 +83,31 @@ namespace Blockchain.Contexts
                 Signature = null
             };
             link.Signature = Sign(link, key);
-            chain.Insert(link);
+            temp.Insert(link);
             lastId = link.Id;
             return id;
         }
 
         public void Update(Link link)
         {
-            chain.Update(link);
-            CalculateLastLink();
+            if (IsTemp(link.Id))
+            {
+                temp.Update(link);
+            } else
+            {
+                chain.Update(link);
+            }
         }
 
         public void Remove(Link link)
         {
-            chain.Delete(link.Id);
+            if (IsTemp(link.Id))
+            {
+                temp.Delete(link.Id);
+            } else
+            {
+                chain.Delete(link.Id);
+            }
             CalculateLastLink();
         }
 
@@ -122,6 +137,53 @@ namespace Blockchain.Contexts
             }
         }
 
+        public bool IsTemp(Guid id)
+        {
+            var t = temp.Query().Where(q => q.Id == id).SingleOrDefault();
+            var c = temp.Query().Where(q => q.Id == id).SingleOrDefault();
+            if (t == null)
+            {
+                return false;
+            } else if (c == null)
+            {
+                return true;
+            } else
+            {
+                throw new Exception("Link id not found");
+            }
+        }
+
+        public void Transfer(Guid id)
+        {
+            List<Link> links = new List<Link>();
+            var firstLink = temp.Query().Where(q => q.Id == id).Single();
+            var link = firstLink;
+            while (link.Lock != null && link.Lock.Confirmed)
+            {
+                links.Add(link);
+                link = temp.Query().Where(q => q.Id == link.Lock.NextId).SingleOrDefault();
+            }
+
+            link = temp.Query().Where(q => q.Id == firstLink.LastId).SingleOrDefault();
+            while (link != null && link.Lock.Confirmed)
+            {
+                var t = temp.Query().Where(q => q.Id == link.LastId).SingleOrDefault();
+                if (t != null && t.Lock != null && t.Lock.Confirmed)
+                {
+                    links.Add(link);
+                } else
+                {
+                    links.Clear();
+                }
+                link = t;
+            }
+            if (links.Count > 0)
+            {
+                chain.Insert(links);
+                temp.DeleteMany(q => links.Any(l => l.Id == q.Id));
+            }
+        }
+
         public Link? GetLastLink()
         {
             if (lastId.HasValue)
@@ -135,17 +197,29 @@ namespace Blockchain.Contexts
 
         private void CalculateLastLink()
         {
+
             Link link = chain.Query().Where(q => q.LastId == null).SingleOrDefault();
-            Link temp = link;
-            while (temp != null)
+            Link tempLink = link;
+            while (tempLink != null)
             {
-                temp = chain.Query().Where(q => q.LastId == temp.Id).SingleOrDefault();
-                if (temp != null)
+                tempLink = chain.Query().Where(q => q.LastId == tempLink.Id).SingleOrDefault();
+                if (tempLink != null)
                 {
-                    link = temp;
+                    link = tempLink;
                 }
             }
-            lastId = link != null ? link.Id : null;
+            if (temp.Count() > 0)
+            {
+                while (tempLink != null)
+                {
+                    tempLink = temp.Query().Where(q => q.LastId == tempLink.Id).SingleOrDefault();
+                    if (tempLink != null)
+                    {
+                        link = tempLink;
+                    }
+                }
+            }
+            lastId = link == null ? null : link.Id;
         }
 
         private string Serialize(Link link)

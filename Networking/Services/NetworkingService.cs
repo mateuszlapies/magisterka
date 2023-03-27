@@ -36,12 +36,12 @@ namespace Networking.Services
             return links;
         }
 
-        public static bool Lock(Guid? lockId, Guid nextId, string owner)
+        public static bool Lock(Guid? lockId, Link nextLink, string owner)
         {
             LockRequest request = new()
             {
                 LockId = lockId,
-                NextId = nextId,
+                NextLink = nextLink,
                 Owner = owner
             };
 
@@ -72,7 +72,8 @@ namespace Networking.Services
                 return true;
             } else
             {
-                return false;
+                successes.ForEach(e => e.)
+                throw new Exception("Lock failed");
             }
         }
     }

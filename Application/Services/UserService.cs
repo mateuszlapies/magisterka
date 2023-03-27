@@ -29,7 +29,8 @@ namespace Application.Services
                         UserName = username,
                         PublicKey = rsa.GetPublicKey()
                     }, rsa.GetParameters(true));
-                    if (NetworkingService.Lock(lastId, id, rsa.GetOwner()))
+                    var link = context.Get(id);
+                    if (NetworkingService.Lock(lastId, link, rsa.GetOwner()))
                     {
                         logger.LogInformation("Successfully created user {username}", username);
                         return true;

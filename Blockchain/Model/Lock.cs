@@ -5,5 +5,6 @@
         public Guid NextId { get; set; }
         public string Owner { get; set; }
         public DateTime Expires { get; set; }
+        public bool Confirmed { get; set; }
     }
 }
