@@ -7,12 +7,12 @@ namespace Blockchain.Test
 {
     public class ContextTests
     {
-        private readonly Context context;
+        private readonly LockContext context;
         private readonly RSAParameters parameters;
 
         public ContextTests()
         {
-            context = new Context();
+            context = new LockContext();
             parameters = RSAHelper.GetPrivate();
         }
 

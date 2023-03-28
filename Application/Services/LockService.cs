@@ -6,9 +6,9 @@ namespace Application.Services
 {
     public class LockService
     {
-        private readonly Context context;
+        private readonly LockContext context;
 
-        public LockService(Context context)
+        public LockService(LockContext context)
         {
             this.context = context;
         }

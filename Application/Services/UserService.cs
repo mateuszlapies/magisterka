@@ -7,10 +7,10 @@ namespace Application.Services
     public class UserService
     {
         private readonly ILogger<UserService> logger;
-        private readonly Context context;
+        private readonly LockContext context;
         private readonly RSAService rsa;
 
-        public UserService(ILogger<UserService> logger, Context context, RSAService rsa)
+        public UserService(ILogger<UserService> logger, LockContext context, RSAService rsa)
         {
             this.logger = logger;
             this.context = context;
@@ -19,7 +19,7 @@ namespace Application.Services
 
         public bool CreateUser(string username)
         {
-            if (Context.Synced)
+            if (LockContext.Synced)
             {
                 if (!context.Get<User>().Any(q => (q.Object as User).UserName == username))
                 {

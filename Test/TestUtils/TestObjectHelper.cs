@@ -18,7 +18,7 @@ namespace TestUtils
 
         public static TestObject TestObject { get { return testObject; } }
 
-        public static Guid Add(Context context, RSAParameters parameters, int amount = 1)
+        public static Guid Add(PublicContext context, RSAParameters parameters, int amount = 1)
         {
             Guid id = Guid.Empty;
             for (int i = 0; i < amount; i++)
@@ -28,7 +28,7 @@ namespace TestUtils
             return id;
         }
 
-        public static TestObject Get(Context context, Guid id)
+        public static TestObject Get(PublicContext context, Guid id)
         {
             return (TestObject)context.Get(id).Object;
         }

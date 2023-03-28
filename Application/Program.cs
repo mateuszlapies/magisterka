@@ -37,7 +37,7 @@ builder.Services.AddHangfire(configuration => configuration
 builder.Services.AddHostedService<HangfireJobs>();
 builder.Services.AddHostedService<EndpointHostedService>();
 
-builder.Services.AddTransient<Context>();
+builder.Services.AddTransient<LockContext>();
 builder.Services.AddTransient<PublicContext>();
 
 builder.Services.AddTransient<EndpointService>();

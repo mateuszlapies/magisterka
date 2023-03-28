@@ -2,23 +2,18 @@
 
 namespace Blockchain.Contexts
 {
-    public class PublicContext
+    public class PublicContext : Context
     {
-        private readonly Context context;
-
-        public PublicContext(Context context)
-        {
-            this.context = context;
-        }
-
         public T Get<T>(Guid id)
         {
-            return (T)context.Get(id).Object;
+            return (T)Get(id).Object;
         }
 
-        public Guid Add<T>(T obj, RSAParameters key)
+        public List<T> Get<T>()
         {
-            return context.Add(obj, key);
+            return Chain.Query().Where(q => q.ObjectType == typeof(T).ToString()).Select(x => (T)x.Object).ToList();
         }
+
+        public new Guid Add<T>(T obj, RSAParameters key) => Add<T>(obj, key);
     }
 }

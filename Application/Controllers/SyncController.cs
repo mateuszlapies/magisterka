@@ -11,9 +11,9 @@ namespace Application.Controllers
     public class SyncController
     {
         private readonly ILogger<SyncController> logger;
-        private readonly Context context;
+        private readonly LockContext context;
 
-        public SyncController(ILogger<SyncController> logger, Context context)
+        public SyncController(ILogger<SyncController> logger, LockContext context)
         {
             this.logger = logger;
             this.context = context;

@@ -10,9 +10,9 @@ namespace Application.Jobs
     public class SyncJob
     {
         private readonly ILogger<SyncJob> logger;
-        private readonly Context context;
+        private readonly SyncContext context;
 
-        public SyncJob(ILogger<SyncJob> logger, Context context)
+        public SyncJob(ILogger<SyncJob> logger, SyncContext context)
         {
             this.logger = logger;
             this.context = context;
@@ -20,7 +20,7 @@ namespace Application.Jobs
 
         public void Run()
         {
-            Guid? lastId = context.GetLastLink()?.Id;
+            Guid? lastId = context.GetLastId();
             logger.LogInformation("Sending Sync requests for last link id: {lastId}", lastId);
             List<Link> links = NetworkingService.Sync(lastId);
             if (links.Count > 0)
@@ -36,7 +36,7 @@ namespace Application.Jobs
             {
                 logger.LogInformation("No new links have been found");
             }
-            Context.Synced = true;
+            LockContext.Synced = true;
             EndpointService.Query();
         }
     }
