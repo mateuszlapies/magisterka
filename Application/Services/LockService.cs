@@ -43,54 +43,19 @@ namespace Application.Services
                 }
             }
 
-            lockLink.Lock = new Lock()
-            {
-                NextId = nextLink.Id,
-                Owner = owner,
-                Expires = DateTime.UtcNow.AddMinutes(1),
-                Confirmed = false
-            };
-
-            context.Update(lockLink);
-            context.Add(nextLink);
+            context.Lock(lockLink, nextLink, owner);
 
             return (LockError.None, Guid.Empty);
         }
 
         public void Unlock(Guid id)
         {
-            var link = context.Get(id);
-            if (link != null)
-            {
-                if (link.Lock != null)
-                {
-                    var cleanup = context.Get(link.Lock.NextId);
-                    while (cleanup != null)
-                    {
-                        context.Remove(cleanup.Id);
-                        if (cleanup.Lock != null)
-                        {
-                            cleanup = context.Get(cleanup.Lock.NextId);
-                        }
-                    }
-                }
-                context.Remove(link.Id);
-            }
+            context.Unlock(id);
         }
 
         public void Confirm(Guid id)
         {
-            var link = context.Get(id);
-            if (link != null)
-            {
-                if (link.LastId.HasValue)
-                {
-                    var lastLink = context.Get(link.LastId.Value);
-                    lastLink.Lock.Confirmed = true;
-                    context.Update(lastLink);
-                }
-                context.Transfer(id);
-            }
+            context.Confirm(id);
         }
     }
 }

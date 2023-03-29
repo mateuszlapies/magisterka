@@ -17,7 +17,7 @@ namespace Application.Controllers
             this.lockService = lockService;
         }
 
-        [HttpPut]
+        [HttpPost]
         public LockResponse Lock(LockRequest request)
         {
             var (error, id) = lockService.Lock(request.NextLink, request.Owner);
@@ -35,7 +35,7 @@ namespace Application.Controllers
             lockService.Confirm(id);
         }
 
-        [HttpDelete]
+        [HttpPost]
         public void Unlock(Guid id)
         {
             lockService.Unlock(id);

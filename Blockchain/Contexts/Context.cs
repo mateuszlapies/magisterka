@@ -12,7 +12,7 @@ namespace Blockchain.Contexts
         public ILiteCollection<Link> Chain { get; }
         public static bool Synced { get; protected set; }
 
-        private Guid? lastId;
+        private static Guid? lastId;
 
         protected Context()
         {
@@ -23,6 +23,7 @@ namespace Blockchain.Contexts
         protected void Clear()
         {
             Chain.DeleteAll();
+            CalculateLastLink();
         }
 
         protected Link Get(Guid id)
@@ -71,7 +72,7 @@ namespace Blockchain.Contexts
             }
         }
 
-        protected Guid? GetLastId()
+        protected static Guid? GetLastId()
         {
             return lastId;
         }

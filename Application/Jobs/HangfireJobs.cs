@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Networking.Services;
 
 namespace Application.Jobs
 {
@@ -8,6 +9,7 @@ namespace Application.Jobs
         {
             return Task.Run(() =>
             {
+                EndpointService.Init();
                 BackgroundJob.Enqueue<SyncJob>(x => x.Run());
             }, cancellationToken);
         }

@@ -40,7 +40,7 @@ namespace Blockchain.Contexts
             }
         }
 
-        public bool Sync(List<List<Link>> linkSets)
+        public void Sync(List<List<Link>> linkSets)
         {
             if (linkSets.Count > 0)
             {
@@ -72,17 +72,40 @@ namespace Blockchain.Contexts
                     Temp.DeleteAll();
                     Temp.InsertBulk(successList);
                     CalculateLastLink();
-                    Transfer(GetLastId().Value);
+                    Transfer();
                     SetSynced();
                 }
             } else
             {
                 SetSynced();
             }
-            
-            return true;
         }
 
-        public new Guid? GetLastId() => base.GetLastId();
+        private void Transfer()
+        {
+            List<Link> links = new();
+            var lastChainId = GetLastChainId();
+            var link = Temp.Query().Where(q => q.LastId == lastChainId).Single();
+            while (link != null && ((link.LastId == null && lastChainId == null) || (link.Lock != null && link.Lock.Confirmed)))
+            {
+                links.Add(link);
+                if (link.Lock != null)
+                {
+                    link = Temp.Query().Where(q => q.Id == link.Lock.NextId).SingleOrDefault();
+                } else
+                {
+                    link = null;
+                }
+            }
+
+            if (links.Count > 0)
+            {
+                Chain.Insert(links);
+                Temp.DeleteMany(q => links.Contains(q));
+            }
+        }
+
+        public new Guid? GetLastId() => TempContext.GetLastId();
+        public new void Clear() => base.Clear();
     }
 }

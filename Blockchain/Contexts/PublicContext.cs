@@ -4,7 +4,7 @@
     {
         public T Get<T>(Guid id)
         {
-            return (T)Get(id).Object;
+            return (T)Get(id)?.Object;
         }
 
         public List<T> Get<T>()

@@ -35,10 +35,11 @@ builder.Services.AddHangfire(configuration => configuration
             .UseSQLiteStorage(Sequal.ConnectionString()));
 
 builder.Services.AddHostedService<HangfireJobs>();
-builder.Services.AddHostedService<EndpointHostedService>();
 
+builder.Services.AddTransient<SyncContext>();
 builder.Services.AddTransient<LockContext>();
 builder.Services.AddTransient<CreateContext>();
+builder.Services.AddTransient<PublicContext>();
 
 builder.Services.AddTransient<EndpointService>();
 builder.Services.AddTransient<RSAService>();

@@ -9,7 +9,7 @@ namespace Blockchain.Contexts
     {
         public ILiteCollection<Link> Temp { get; }
 
-        private Guid? lastId;
+        private static Guid? lastId;
 
         protected TempContext() : base()
         {
@@ -37,17 +37,33 @@ namespace Blockchain.Contexts
 
         protected void Add(Link link)
         {
-            var lastLink = GetLastLink();
+            var lastLink = Get(link.LastId.Value);
             if (lastLink != null)
             {
-                if (lastLink.Lock.Expires <= DateTime.UtcNow
-                    || !VerifyOwner(link.Signature.Owner, lastLink.Lock.Owner)
-                    || lastLink.Lock.NextId == link.Id && lastLink.Id == link.LastId)
+                if (lastLink.Lock.Expires <= DateTime.UtcNow)
+                {
+                    throw new ValidationException();
+                }
+
+                if (!VerifyOwner(link.Signature.Owner, lastLink.Lock.Owner))
+                {
+                    throw new ValidationException();
+                }
+
+                if (lastLink.Lock.NextId != link.Id)
+                {
+                    throw new ValidationException();
+                }
+
+                if (lastLink.Id != link.LastId)
                 {
                     throw new ValidationException();
                 }
             }
-            Temp.Insert(link);
+            if (!Temp.Exists(q => q.Id == link.Id))
+            {
+                Add(link);
+            }
         }
 
         protected Link Add<T>(T obj, RSAParameters key)
@@ -94,6 +110,7 @@ namespace Blockchain.Contexts
         {
             base.Clear();
             Temp.DeleteAll();
+            CalculateLastLink();
         }
 
         protected new void Remove(Guid id)
@@ -110,32 +127,26 @@ namespace Blockchain.Contexts
         protected void Transfer(Guid id)
         {
             List<Link> links = new();
-            var firstLink = Temp.Query().Where(q => q.Id == id).Single();
-            var link = firstLink;
-            while (link.Lock != null && link.Lock.Confirmed)
+            var lastChainId = Context.GetLastId();
+            var lastChainLink = base.GetLastLink();
+            var link = Temp.Query().Where(q => q.LastId == lastChainId).Single();
+            while (link != null && ((!link.LastId.HasValue && !lastChainId.HasValue) || (lastChainLink != null && lastChainLink.Lock != null && lastChainLink.Lock.Confirmed)))
             {
                 links.Add(link);
-                link = Temp.Query().Where(q => q.Id == link.Lock.NextId).SingleOrDefault();
-            }
-
-            link = Temp.Query().Where(q => q.Id == firstLink.LastId).SingleOrDefault();
-            while (link != null && link.Lock != null && link.Lock.Confirmed)
-            {
-                var t = Temp.Query().Where(q => q.Id == link.LastId).SingleOrDefault();
-                if (t != null && t.Lock != null && t.Lock.Confirmed)
+                if (link.Lock != null)
                 {
-                    links.Add(link);
+                    link = Temp.Query().Where(q => q.Id == link.Lock.NextId).SingleOrDefault();
                 }
                 else
                 {
-                    links.Clear();
+                    link = null;
                 }
-                link = t;
             }
-            if (links.Count > 0)
+
+            if (links.Count > 0 && links.Any(q => q.Id == id))
             {
                 Chain.Insert(links);
-                Temp.DeleteMany(q => links.Any(l => l.Id == q.Id));
+                Temp.DeleteMany(q => links.Contains(q));
             }
         }
 
@@ -160,13 +171,13 @@ namespace Blockchain.Contexts
         protected static bool VerifyOwner(string owner, string ownerHash)
         {
             using RSACryptoServiceProvider rsa = new();
-            rsa.ImportRSAPublicKey(Convert.FromBase64String(owner), out int bytesRead);
             byte[] unsigned = Convert.FromBase64String(owner);
+            rsa.ImportRSAPublicKey(unsigned, out int bytesRead);
             byte[] signed = Convert.FromBase64String(ownerHash);
             return rsa.VerifyData(unsigned, SHA256.Create(), signed);
         }
 
-        protected new Guid? GetLastId()
+        protected new static Guid? GetLastId()
         {
             return lastId;
         }
@@ -183,6 +194,11 @@ namespace Blockchain.Contexts
             
         }
 
+        protected Guid? GetLastChainId()
+        {
+            return Context.GetLastId();
+        }
+
         protected new void CalculateLastLink()
         {
             Link link = Chain.Query().Where(q => q.LastId == null).SingleOrDefault();
@@ -197,6 +213,12 @@ namespace Blockchain.Contexts
             }
             if (Temp.Count() > 0)
             {
+                if (tempLink == null)
+                {
+                    tempLink = Temp.Query().Where(q => q.LastId == null).SingleOrDefault();
+                    link = tempLink;
+                }
+
                 while (tempLink != null)
                 {
                     tempLink = Temp.Query().Where(q => q.LastId == tempLink.Id).SingleOrDefault();
@@ -207,6 +229,7 @@ namespace Blockchain.Contexts
                 }
             }
             lastId = link?.Id;
+            base.CalculateLastLink();
         }
 
         protected static void SetSynced()
