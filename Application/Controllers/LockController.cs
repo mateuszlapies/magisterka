@@ -20,7 +20,7 @@ namespace Application.Controllers
         [HttpPut]
         public LockResponse Lock(LockRequest request)
         {
-            var (error, id) = lockService.Lock(request.LockId, request.Owner, request.NextLink);
+            var (error, id) = lockService.Lock(request.NextLink, request.Owner);
             return new LockResponse()
             {
                 Success = error == LockError.None,

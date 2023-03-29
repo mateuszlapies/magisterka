@@ -30,7 +30,7 @@ namespace TestUtils
 
         public static TestObject Get(PublicContext context, Guid id)
         {
-            return (TestObject)context.Get(id).Object;
+            return context.Get<TestObject>(id);
         }
     }
 }

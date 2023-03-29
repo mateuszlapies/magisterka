@@ -8,24 +8,21 @@ namespace Blockchain.Contexts
 {
     public class Context
     {
-        protected static bool Synced { get; set; }
+        protected LiteDatabase Database { get; }
+        public ILiteCollection<Link> Chain { get; }
+        public static bool Synced { get; protected set; }
 
         private Guid? lastId;
-        public ILiteCollection<Link> Chain { get; }
-        public ILiteCollection<Link> Temp { get; }
 
         protected Context()
         {
-            var database = Database.Instance();
-            Chain = database.GetCollection<Link>("chain");
-            Temp = database.GetCollection<Link>("temp");
-            Temp.DeleteAll();
+            Database = Blockchain.Database.Instance();
+            Chain = Database.GetCollection<Link>("chain");
         }
 
         protected void Clear()
         {
             Chain.DeleteAll();
-            Temp.DeleteAll();
         }
 
         protected Link Get(Guid id)
@@ -36,25 +33,6 @@ namespace Blockchain.Contexts
         protected List<Link> Get()
         {
             return Chain.FindAll().ToList();
-        }
-
-        protected Guid Add<T>(T obj, RSAParameters key)
-        {
-            Link last = GetLastLink();
-            Guid id = Guid.NewGuid();
-            Link link = new()
-            {
-                Id = id,
-                Object = obj,
-                ObjectType = obj.GetType().ToString(),
-                LastId = last?.Id,
-                LastLink = last,
-                Signature = null
-            };
-            link.Signature = Sign(link, key);
-            Temp.Insert(link);
-            lastId = link.Id;
-            return id;
         }
 
         protected void Remove(Guid id)
@@ -109,7 +87,7 @@ namespace Blockchain.Contexts
             }
         }
 
-        protected void CalculateLastLink(bool temp = false)
+        protected void CalculateLastLink()
         {
             Link link = Chain.Query().Where(q => q.LastId == null).SingleOrDefault();
             Link tempLink = link;
@@ -121,26 +99,15 @@ namespace Blockchain.Contexts
                     link = tempLink;
                 }
             }
-            if (temp && Temp.Count() > 0)
-            {
-                while (tempLink != null)
-                {
-                    tempLink = Temp.Query().Where(q => q.LastId == tempLink.Id).SingleOrDefault();
-                    if (tempLink != null)
-                    {
-                        link = tempLink;
-                    }
-                }
-            }
-            lastId = link == null ? null : link.Id;
+            lastId = link?.Id;
         }
 
-        protected string Serialize(Link link)
+        protected static string Serialize(Link link)
         {
             return JsonSerializer.Serialize(link);
         }
 
-        protected Signature Sign(Link link, RSAParameters key)
+        protected static Signature Sign(Link link, RSAParameters key)
         {
             string json = Serialize(link);
             using RSACryptoServiceProvider rsa = new();
@@ -155,7 +122,7 @@ namespace Blockchain.Contexts
             return signature;
         }
 
-        protected bool Verify(Link link)
+        protected static bool Verify(Link link)
         {
             Signature hash = link.Signature;
             link.Signature = null;

@@ -6,16 +6,7 @@ namespace Blockchain.Contexts
 {
     public class LockContext : TempContext
     {
-
-        public new Link Get(Guid id)
-        {
-            if (IsTemp(id))
-            {
-                return Temp.FindOne(q => q.Id == id);
-            } else
-            {
-                return Chain.FindOne(q => q.Id == id);
-            }
-        }
+        public new Link Get(Guid id) => base.Get(id);
+        public new void Remove(Guid id) => base.Remove(id);
     }
 }

@@ -7,37 +7,38 @@ namespace Application.Services
     public class UserService
     {
         private readonly ILogger<UserService> logger;
-        private readonly LockContext context;
+        private readonly PublicContext publicContext;
+        private readonly LockContext lockContext;
         private readonly RSAService rsa;
 
-        public UserService(ILogger<UserService> logger, LockContext context, RSAService rsa)
+        public UserService(ILogger<UserService> logger, PublicContext publicContext, LockContext lockContext, RSAService rsa)
         {
             this.logger = logger;
-            this.context = context;
+            this.publicContext = publicContext;
+            this.lockContext = lockContext;
             this.rsa = rsa;
         }
 
         public bool CreateUser(string username)
         {
-            if (LockContext.Synced)
+            if (Context.Synced)
             {
-                if (!context.Get<User>().Any(q => (q.Object as User).UserName == username))
+                if (!publicContext.Get<User>().Any(q => q.UserName == username))
                 {
-                    var lastId = context.GetLastLink()?.Id;
-                    var id = context.Add<User>(new User()
+                    var id = publicContext.Add<User>(new User()
                     {
                         UserName = username,
                         PublicKey = rsa.GetPublicKey()
                     }, rsa.GetParameters(true));
-                    var link = context.Get(id);
-                    if (NetworkingService.Lock(lastId, link, rsa.GetOwner()))
+
+                    if (NetworkingService.Lock(lockContext.Get(id), rsa.GetOwner()))
                     {
                         logger.LogInformation("Successfully created user {username}", username);
                         return true;
                     } else
                     {
                         logger.LogError("Failed to create user {username}. Failed to lock", username);
-                        context.Remove(context.Get(id));
+                        lockContext.Remove(id);
                     }
                 }
                 else

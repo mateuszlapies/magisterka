@@ -11,9 +11,9 @@ namespace Application.Controllers
     public class SyncController
     {
         private readonly ILogger<SyncController> logger;
-        private readonly LockContext context;
+        private readonly SyncContext context;
 
-        public SyncController(ILogger<SyncController> logger, LockContext context)
+        public SyncController(ILogger<SyncController> logger, SyncContext context)
         {
             this.logger = logger;
             this.context = context;
@@ -25,32 +25,12 @@ namespace Application.Controllers
             logger.LogInformation("Received Sync request for id: {id}", request?.LastId);
             SyncResponse response = new() { Success = false };
 
-            if (request != null && request.LastId.HasValue)
+            if (request != null || !Context.Synced)
             {
-                Link link = context.Get(request.LastId.Value);
-                if (link == null)
-                {
-                    return response;
-                }
-                Link lastLink = context.GetLastLink();
-                if (lastLink == null || lastLink.Id == link.Id)
-                {
-                    return response;
-                }
-                response.Links = new List<Link>();
-                while(lastLink.Id != link.Id)
-                {
-                    response.Links.Add(lastLink);
-                    lastLink = context.Get(lastLink.LastId.Value);
-                }
-                response.Success = true;
-                return response;
-            } else
-            {
-                response.Links = context.Get();
-                response.Success = true;
                 return response;
             }
+            (response.Success, response.Links) = context.Get(request.LastId);
+            return response;
         }
     }
 }

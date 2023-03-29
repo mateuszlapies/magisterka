@@ -10,9 +10,9 @@ namespace Networking.Services
     {
         private static readonly ILogger logger = Log.ForContext<NetworkingService>();
 
-        public static List<Link> Sync(Guid? lastId)
+        public static List<List<Link>> Sync(Guid? lastId)
         {
-            List<Link> links = new();
+            List<List<Link>> links = new();
             int count = EndpointService.Instances.Count<SyncEndpoint>();
             logger.Information("{count} connections has been found for Sync", count);
             if (count > 0)
@@ -31,17 +31,26 @@ namespace Networking.Services
 
                 Task.WaitAll(tasks.ToArray());
 
-                tasks.ForEach(t => links = links.Union(t.Result.Links).ToList());
+                foreach(var t in tasks)
+                {
+                    if (t.Result.Success)
+                    {
+                        links.Add(t.Result.Links);
+                    }
+                }
+                    
+            } else
+            {
+                throw new Exception("No nodes have been found");
             }
             return links;
         }
 
-        public static bool Lock(Guid? lockId, Link nextLink, string owner)
+        public static bool Lock(Link link, string owner)
         {
             LockRequest request = new()
             {
-                LockId = lockId,
-                NextLink = nextLink,
+                NextLink = link,
                 Owner = owner
             };
 
@@ -72,7 +81,6 @@ namespace Networking.Services
                 return true;
             } else
             {
-                successes.ForEach(e => e.)
                 throw new Exception("Lock failed");
             }
         }
