@@ -7,11 +7,11 @@ namespace Application.Services
     public class UserService
     {
         private readonly ILogger<UserService> logger;
-        private readonly PublicContext publicContext;
+        private readonly CreateContext publicContext;
         private readonly LockContext lockContext;
         private readonly RSAService rsa;
 
-        public UserService(ILogger<UserService> logger, PublicContext publicContext, LockContext lockContext, RSAService rsa)
+        public UserService(ILogger<UserService> logger, CreateContext publicContext, LockContext lockContext, RSAService rsa)
         {
             this.logger = logger;
             this.publicContext = publicContext;
@@ -30,15 +30,15 @@ namespace Application.Services
                         UserName = username,
                         PublicKey = rsa.GetPublicKey()
                     }, rsa.GetParameters(true));
-
-                    if (NetworkingService.Lock(lockContext.Get(id), rsa.GetOwner()))
+                    var link = lockContext.Get(id);
+                    if (NetworkingService.Lock(link, rsa.GetOwner()))
                     {
                         logger.LogInformation("Successfully created user {username}", username);
                         return true;
                     } else
                     {
                         logger.LogError("Failed to create user {username}. Failed to lock", username);
-                        lockContext.Remove(id);
+                        lockContext.Remove(link.Id);
                     }
                 }
                 else

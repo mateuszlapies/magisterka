@@ -119,7 +119,7 @@ namespace Blockchain.Contexts
             }
 
             link = Temp.Query().Where(q => q.Id == firstLink.LastId).SingleOrDefault();
-            while (link != null && link.Lock.Confirmed)
+            while (link != null && link.Lock != null && link.Lock.Confirmed)
             {
                 var t = Temp.Query().Where(q => q.Id == link.LastId).SingleOrDefault();
                 if (t != null && t.Lock != null && t.Lock.Confirmed)

@@ -38,7 +38,7 @@ builder.Services.AddHostedService<HangfireJobs>();
 builder.Services.AddHostedService<EndpointHostedService>();
 
 builder.Services.AddTransient<LockContext>();
-builder.Services.AddTransient<PublicContext>();
+builder.Services.AddTransient<CreateContext>();
 
 builder.Services.AddTransient<EndpointService>();
 builder.Services.AddTransient<RSAService>();

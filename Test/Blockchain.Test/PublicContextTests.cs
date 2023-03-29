@@ -5,14 +5,14 @@ using TestUtils.Classes;
 
 namespace Blockchain.Test
 {
-    public class ContextTests
+    public class PublicContextTests
     {
-        private readonly PublicContext context;
+        private readonly CreateContext context;
         private readonly RSAParameters parameters;
 
-        public ContextTests()
+        public PublicContextTests()
         {
-            context = new PublicContext();
+            context = new CreateContext();
             parameters = RSAHelper.GetPrivate();
         }
 
@@ -57,6 +57,7 @@ namespace Blockchain.Test
         public void VerifySingleLinkTest()
         {
             Guid id = TestObjectHelper.Add(context, parameters);
+            Console.WriteLine(id);
             Assert.That(context.Verify(id), Is.True);
         }
 
