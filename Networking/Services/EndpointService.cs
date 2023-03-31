@@ -41,9 +41,6 @@ namespace Networking.Services
                         logger.Information("Network: {name}", nic.Name);
                     }
                     serviceDiscovery.QueryServiceInstances(serviceName);
-
-                    serviceDiscovery.Advertise(serviceProfile);
-                    serviceDiscovery.Announce(serviceProfile);
                 };
 
                 multicastService.QueryReceived += (s, e) =>
