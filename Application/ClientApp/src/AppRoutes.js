@@ -1,14 +1,15 @@
 import Sync from "./components/Sync";
+import Home from "./components/Home";
 
 const AppRoutes = [
   {
     index: true,
     element: <Sync />
+  },
+  {
+    path: '/app',
+    element: <Home />
   }
-  //{
-  //  path: '/counter',
-  //  element: <Counter />
-  //}
 ];
 
 export default AppRoutes;

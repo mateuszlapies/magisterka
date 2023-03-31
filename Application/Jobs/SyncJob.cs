@@ -12,16 +12,14 @@ namespace Application.Jobs
     {
         private readonly ILogger<SyncJob> logger;
         private readonly SyncContext syncContext;
-        private readonly PerformContext performContext;
 
-        public SyncJob(ILogger<SyncJob> logger, SyncContext syncContext, PerformContext performContext)
+        public SyncJob(ILogger<SyncJob> logger, SyncContext syncContext)
         {
             this.logger = logger;
             this.syncContext = syncContext;
-            this.performContext = performContext;
         }
 
-        public void Run()
+        public void Run(PerformContext performContext)
         {
             EndpointService.Query();
             Guid? lastId = SyncContext.GetLastId();
@@ -33,7 +31,8 @@ namespace Application.Jobs
                 syncContext.Sync(links);
             } catch (Exception)
             {
-                if (performContext.GetJobParameter<int>("RetryCount") > 4)
+                var retries = performContext.GetJobParameter<int>("RetryCount");
+                if (retries > 4)
                 {
                     syncContext.Sync(new List<List<Link>>());
                 } else

@@ -12,26 +12,20 @@ export default function Home() {
 
   return (
     <>
-      <div>
+      <div className="p-3">
         <InputGroup>
-          <FormGroup>
-            <Label for="exampleText">
-              Message
-            </Label>
-            <Input
-              id="exampleText"
-              name="text"
-              type="textarea"
-            />
-          </FormGroup>
+          <Input
+            name="text"
+            type="textarea"
+          />
           <Button>
-            Send
+            <i className="bi bi-send"/>
           </Button>
         </InputGroup>
       </div>
       <div>
         {posts.map((item, index) => (
-          <div>
+          <div key={index} className="m-3">
             <Card>
               <CardHeader>
                 {item.User.Name}

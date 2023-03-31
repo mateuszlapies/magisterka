@@ -3,10 +3,15 @@ import {useEffect} from "react";
 
 export default function Sync() {
   useEffect(() => {
-    setTimeout(() => {
+    let interval = setInterval(() => {
       fetch("/api/Status/Synced")
         .then(r => r.text())
-        .then(t => t === "true" ? window.href = "app" : null)
+        .then(t => {
+          if (t === "true") {
+            clearInterval(interval)
+            window.location.href = "app"
+          }
+        })
     }, 1000)
   }, [])
 

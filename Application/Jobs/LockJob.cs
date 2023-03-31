@@ -8,21 +8,19 @@ using Networking.Services;
 namespace Application.Jobs
 {
     [MaximumConcurrentExecutions(1)]
-    [AutomaticRetry(Attempts = 5, DelaysInSeconds = new int[] { 10, 10, 10, 10, 10 })]
+    [AutomaticRetry(Attempts = 5)]
     public class LockJob
     {
         private readonly RSAService rsaService;
         private readonly LockContext lockContext;
-        private readonly PerformContext performContext;
 
-        public LockJob(RSAService rsaService, LockContext lockContext, PerformContext performContext)
+        public LockJob(RSAService rsaService, LockContext lockContext)
         {
             this.lockContext = lockContext;
             this.rsaService = rsaService;
-            this.performContext = performContext;
         }
 
-        public void Run(Link link, string owner)
+        public void Run(Link link, string owner, PerformContext performContext)
         {
             int retries = performContext.GetJobParameter<int>("RetryCount");
             if (retries > 0)

@@ -10,7 +10,7 @@ namespace Application.Jobs
             return Task.Run(() =>
             {
                 EndpointService.Init();
-                BackgroundJob.Enqueue<SyncJob>(x => x.Run());
+                BackgroundJob.Enqueue<SyncJob>(x => x.Run(default));
             }, cancellationToken);
         }
 

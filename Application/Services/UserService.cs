@@ -32,7 +32,7 @@ namespace Application.Services
                         Name = username
                     }, rsa.GetParameters(true));
                     var link = lockContext.Get(id);
-                    return BackgroundJob.Enqueue<LockJob>(x => x.Run(link, rsa.GetOwner()));
+                    return BackgroundJob.Enqueue<LockJob>(x => x.Run(link, rsa.GetOwner(), default));
                 }
                 else
                 {
