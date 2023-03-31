@@ -79,9 +79,11 @@ async void ElectronBootstrap()
 {
     BrowserWindowOptions options = new()
     {
-        Show = false
+        Show = false,
+        Width = 800,
+        Height = 800
     };
-    BrowserWindow mainWindow = await Electron.WindowManager.CreateWindowAsync();
+    BrowserWindow mainWindow = await Electron.WindowManager.CreateWindowAsync(options);
     mainWindow.OnReadyToShow += () =>
     {
         mainWindow.Show();
