@@ -122,6 +122,7 @@ namespace Blockchain.Contexts
             {
                 base.Remove(id);
             }
+            CalculateLastLink();
         }
 
         protected void Transfer(Guid id)
@@ -194,7 +195,7 @@ namespace Blockchain.Contexts
             
         }
 
-        protected Guid? GetLastChainId()
+        protected static Guid? GetLastChainId()
         {
             return Context.GetLastId();
         }

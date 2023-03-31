@@ -6,11 +6,9 @@ export class Layout extends Component {
 
   render() {
     return (
-      <div>
-        <Container tag="main">
-          {this.props.children}
-        </Container>
-      </div>
+      <Container className="full-height" tag="main">
+        {this.props.children}
+      </Container>
     );
   }
 }

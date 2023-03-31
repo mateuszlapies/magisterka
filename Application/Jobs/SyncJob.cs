@@ -24,7 +24,7 @@ namespace Application.Jobs
         public void Run()
         {
             EndpointService.Query();
-            Guid? lastId = syncContext.GetLastId();
+            Guid? lastId = SyncContext.GetLastId();
             logger.LogInformation("Sending Sync requests for last link id: {lastId}", lastId);
             try
             {

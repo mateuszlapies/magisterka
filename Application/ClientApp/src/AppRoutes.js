@@ -1,8 +1,10 @@
+import Sync from "./components/Sync";
+
 const AppRoutes = [
-  //{
-  //  index: true,
-  //  element: <Home />
-  //},
+  {
+    index: true,
+    element: <Sync />
+  }
   //{
   //  path: '/counter',
   //  element: <Counter />

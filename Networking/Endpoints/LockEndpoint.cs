@@ -8,9 +8,19 @@ namespace Networking.Hubs
     {
         public override string EndpointAddress { get { return "Lock"; } }
 
-        public async Task<LockResponse> Request(LockRequest request)
+        public async Task<LockResponse> Lock(LockRequest request)
         {
-            return await Request<LockRequest, LockResponse>(request);
+            return await Request<LockRequest, LockResponse>(request, "Lock");
+        }
+
+        public async Task Unlock(Guid id)
+        {
+            await Request(id, "Unlock");
+        }
+
+        public async Task Confirm(Guid id)
+        {
+            await Request(id, "Confirm");
         }
     }
 }

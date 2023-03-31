@@ -1,5 +1,7 @@
-﻿using Application.Model;
+﻿using Application.Jobs;
+using Application.Model;
 using Blockchain.Contexts;
+using Hangfire;
 using Networking.Services;
 
 namespace Application.Services
@@ -19,27 +21,18 @@ namespace Application.Services
             this.rsa = rsa;
         }
 
-        public bool CreateUser(string username)
+        public string CreateUser(string username)
         {
             if (Context.Synced)
             {
-                if (!publicContext.Get<User>().Any(q => q.UserName == username))
+                if (!publicContext.Get<User>().Any(q => q.Name == username))
                 {
                     var id = publicContext.Add<User>(new User()
                     {
-                        UserName = username,
-                        PublicKey = rsa.GetPublicKey()
+                        Name = username
                     }, rsa.GetParameters(true));
                     var link = lockContext.Get(id);
-                    if (NetworkingService.Lock(link, rsa.GetOwner()))
-                    {
-                        logger.LogInformation("Successfully created user {username}", username);
-                        return true;
-                    } else
-                    {
-                        logger.LogError("Failed to create user {username}. Failed to lock", username);
-                        lockContext.Remove(link.Id);
-                    }
+                    return BackgroundJob.Enqueue<LockJob>(x => x.Run(link, rsa.GetOwner()));
                 }
                 else
                 {
@@ -49,7 +42,7 @@ namespace Application.Services
             {
                 logger.LogError("Failed to create user {username}. Database is not synced", username);
             }
-            return false;
+            return string.Empty;
         }
     }
 }

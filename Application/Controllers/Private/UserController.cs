@@ -1,7 +1,7 @@
 ﻿using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Application.Controllers
+namespace Application.Controllers.Private
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -17,7 +17,7 @@ namespace Application.Controllers
         }
 
         [HttpPost]
-        public bool CreateUser(string username)
+        public string CreateUser(string username)
         {
             logger.LogInformation("Creating new user {username}", username);
             return userService.CreateUser(username);

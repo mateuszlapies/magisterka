@@ -1,4 +1,4 @@
-import {Button, Card, CardBody, CardHeader, Container, FormGroup, Input, InputGroup, Label} from "reactstrap";
+import {Button, Card, CardBody, CardHeader, FormGroup, Input, InputGroup, Label} from "reactstrap";
 import {useEffect, useState} from "react";
 
 export default function Home() {
@@ -11,7 +11,7 @@ export default function Home() {
   }, [])
 
   return (
-    <Container>
+    <>
       <div>
         <InputGroup>
           <FormGroup>
@@ -43,6 +43,6 @@ export default function Home() {
           </div>
         ))}
       </div>
-    </Container>
+    </>
   )
 }

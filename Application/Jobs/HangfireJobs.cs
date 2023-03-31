@@ -16,7 +16,7 @@ namespace Application.Jobs
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            return Task.Run(() => { });
+            return Task.Run(() => { }, cancellationToken);
         }
     }
 }

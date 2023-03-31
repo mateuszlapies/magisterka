@@ -46,7 +46,7 @@ namespace Networking.Services
             return links;
         }
 
-        public static bool Lock(Link link, string owner)
+        public static void Lock(Link link, string owner)
         {
             LockRequest request = new()
             {
@@ -58,29 +58,48 @@ namespace Networking.Services
 
             var successes = new List<LockEndpoint>();
             var failures = new Dictionary<LockEndpoint, LockResponse>();
+            var endpoints = EndpointService.Instances.Get<LockEndpoint>();
 
-            foreach(LockEndpoint c in EndpointService.Instances.Get<LockEndpoint>()) {
+            foreach (var endpoint in endpoints) {
                 tasks.Add(Task.Factory.StartNew(async () =>
                 {
-                    var response = await c.Request(request);
+                    var response = await endpoint.Lock(request);
                     if (response.Success)
                     {
-                        successes.Add(c);
+                        successes.Add(endpoint);
                     }
                     else
                     {
-                        failures.Add(c, response);
+                        failures.Add(endpoint, response);
                     }
                 }));
             };
 
             Task.WaitAll(tasks.ToArray());
+            tasks.Clear();
 
             if (successes.Count == 0 && failures.Count == 0 || successes.Count > failures.Count)
             {
-                return true;
+                foreach (var endpoint in endpoints)
+                {
+                    tasks.Add(Task.Factory.StartNew(async () =>
+                    {
+                        await endpoint.Confirm(link.Id);
+                    }));
+                }
+
+                Task.WaitAll(tasks.ToArray());
             } else
             {
+                foreach (var endpoint in successes)
+                {
+                    tasks.Add(Task.Factory.StartNew(async () =>
+                    {
+                        await endpoint.Unlock(link.Id);
+                    }));
+                }
+
+                Task.WaitAll(tasks.ToArray());
                 throw new Exception("Lock failed");
             }
         }

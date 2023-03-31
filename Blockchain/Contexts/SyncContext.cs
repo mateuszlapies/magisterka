@@ -105,7 +105,7 @@ namespace Blockchain.Contexts
             }
         }
 
-        public new Guid? GetLastId() => TempContext.GetLastId();
+        public new static Guid? GetLastId() => TempContext.GetLastId();
         public new void Clear() => base.Clear();
     }
 }

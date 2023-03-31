@@ -1,5 +1,4 @@
-using System.Security.Cryptography;
-using Blockchain.Contexts;
+﻿using Blockchain.Contexts;
 using TestUtils;
 using TestUtils.Classes;
 
@@ -7,66 +6,55 @@ namespace Blockchain.Test
 {
     public class PublicContextTests
     {
-        private readonly CreateContext context;
-        private readonly RSAParameters parameters;
+        private readonly LockContext lockContext;
+        private readonly CreateContext createContext;
 
         public PublicContextTests()
         {
-            context = new CreateContext();
-            parameters = RSAHelper.GetPrivate();
+            lockContext = new LockContext();
+            createContext = new CreateContext();
         }
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            context.Clear();
+            lockContext.Clear();
+        }
+
+
+        [Test]
+        public void GetSingleTest()
+        {
+            var id = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
+            lockContext.Confirm(id);
+
+            var publicContext = new PublicContext();
+            var obj = publicContext.Get<TestObject>(id);
+            Assert.That(obj, Is.Not.Null);
         }
 
         [Test]
-        public void AddSingleLinkTest()
+        public void GetMultipleTest()
         {
-            TestObjectHelper.Add(context, parameters);
-            Assert.Pass();
-        }
+            var first = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
+            lockContext.Confirm(first);
 
-        [Test]
-        public void AddMultipleLinkTest()
-        {
-            TestObjectHelper.Add(context, parameters, 1000);
-            Assert.Pass();
-        }
+            var second = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
+            lockContext.Lock(lockContext.Get(first), lockContext.Get(second), RSAHelper.GetOwner());
+            lockContext.Confirm(second);
 
-        [Test]
-        public void GetTest()
-        {
-            Guid id = TestObjectHelper.Add(context, parameters);
-            TestObject obj = TestObjectHelper.Get(context, id);
-            Assert.Multiple(() =>
-            {
-                Assert.That(obj, Is.Not.Null);
-                Assert.That(obj.Integer, Is.EqualTo(TestObjectHelper.TestObject.Integer));
-                Assert.That(obj.Long, Is.EqualTo(TestObjectHelper.TestObject.Long));
-                Assert.That(obj.Double, Is.EqualTo(TestObjectHelper.TestObject.Double));
-                Assert.That(obj.Float, Is.EqualTo(TestObjectHelper.TestObject.Float));
-                Assert.That(obj.String, Is.EqualTo(TestObjectHelper.TestObject.String));
-                Assert.That(obj.Timestamp.Ticks, Is.EqualTo(TestObjectHelper.TestObject.Timestamp.Ticks));
-            });
-        }
+            var third = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
+            lockContext.Lock(lockContext.Get(second), lockContext.Get(third), RSAHelper.GetOwner());
+            lockContext.Confirm(third);
 
-        [Test]
-        public void VerifySingleLinkTest()
-        {
-            Guid id = TestObjectHelper.Add(context, parameters);
-            Console.WriteLine(id);
-            Assert.That(context.Verify(id), Is.True);
-        }
+            var fourth = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
 
-        [Test]
-        public void VerifyMultipleLinksTest()
-        {
-            TestObjectHelper.Add(context, parameters, 100);
-            Guid id = TestObjectHelper.Add(context, parameters);
-            Assert.That(context.Verify(id), Is.True);
+            var publicContext = new PublicContext();
+            var list = publicContext.Get<TestObject>();
+            Assert.That(list, Is.Not.Null);
+            Assert.That(list, Has.Count.EqualTo(3));
+            var unconfirmed = publicContext.Get<TestObject>(fourth);
+            Assert.That(unconfirmed, Is.Null);
         }
     }
 }
