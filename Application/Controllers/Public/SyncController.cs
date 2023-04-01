@@ -24,7 +24,7 @@ namespace Application.Controllers
             logger.LogInformation("Received Sync request for id: {id}", request?.LastId);
             SyncResponse response = new() { Success = false };
 
-            if (request != null || !Context.Synced)
+            if (request == null || !Context.Synced)
             {
                 return response;
             }
