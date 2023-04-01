@@ -14,6 +14,10 @@ namespace Blockchain.Contexts
         protected TempContext() : base()
         {
             Temp = Database.GetCollection<Link>("temp");
+            if (!lastId.HasValue)
+            {
+                CalculateLastLink();
+            }
         }
 
         protected new List<Link> Get()

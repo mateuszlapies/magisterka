@@ -18,6 +18,10 @@ namespace Blockchain.Contexts
         {
             Database = Blockchain.Database.Instance();
             Chain = Database.GetCollection<Link>("chain");
+            if (!lastId.HasValue)
+            {
+                CalculateLastLink();
+            }
         }
 
         protected void Clear()
