@@ -29,6 +29,11 @@ namespace Blockchain
                     }
                     database = new LiteDatabase(Path.Combine(path, file), GetMapper());
                 #endif
+
+                if (database.CollectionExists("temp"))
+                {
+                    database.DropCollection("temp");
+                }
             }
             return database;
         }

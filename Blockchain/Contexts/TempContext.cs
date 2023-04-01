@@ -14,7 +14,6 @@ namespace Blockchain.Contexts
         protected TempContext() : base()
         {
             Temp = Database.GetCollection<Link>("temp");
-            Temp.DeleteAll();
         }
 
         protected new List<Link> Get()

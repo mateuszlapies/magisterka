@@ -1,5 +1,4 @@
 ﻿using Blockchain.Contexts;
-using Blockchain.Model;
 using Microsoft.AspNetCore.Mvc;
 using Networking.Data.Requests;
 using Networking.Data.Responses;

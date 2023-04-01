@@ -40,6 +40,7 @@ namespace Application.Jobs
                     lockContext.Lock(lockContext.Get(link.LastId.Value), lockContext.Get(link.Id), rsaService.GetOwner());
                 }
                 NetworkingService.Lock(link, owner);
+               lockContext.Confirm(link.Id);
             }
         }
     }

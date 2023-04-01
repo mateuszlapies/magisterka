@@ -77,8 +77,7 @@ namespace Networking.Services
 
             Task.WaitAll(tasks.ToArray());
             tasks.Clear();
-
-            if (successes.Count == 0 && failures.Count == 0 || successes.Count > failures.Count)
+            if (successes.Count > failures.Count)
             {
                 foreach (var endpoint in endpoints)
                 {
@@ -89,7 +88,7 @@ namespace Networking.Services
                 }
 
                 Task.WaitAll(tasks.ToArray());
-            } else
+            } else if (endpoints.Count > 0)
             {
                 foreach (var endpoint in successes)
                 {

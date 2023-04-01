@@ -36,10 +36,10 @@ builder.Services.AddHangfire(configuration => configuration
 
 builder.Services.AddHostedService<HangfireJobs>();
 
-builder.Services.AddTransient<SyncContext>();
-builder.Services.AddTransient<LockContext>();
 builder.Services.AddTransient<CreateContext>();
+builder.Services.AddTransient<LockContext>();
 builder.Services.AddTransient<PublicContext>();
+builder.Services.AddTransient<SyncContext>();
 
 builder.Services.AddTransient<EndpointService>();
 builder.Services.AddTransient<RSAService>();

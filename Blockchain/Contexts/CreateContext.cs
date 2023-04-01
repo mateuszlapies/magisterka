@@ -22,7 +22,7 @@ namespace Blockchain.Contexts
 
         public new void Clear() => base.Clear();
 
-        public new Guid? GetLastId() => TempContext.GetLastId();
+        public new static Guid? GetLastId() => TempContext.GetLastId();
 
         public new bool Verify(Guid id)
         {
