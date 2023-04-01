@@ -46,19 +46,21 @@ namespace Networking.Services
 
                 multicastService.QueryReceived += (s, e) =>
                 {
-                    logger.Information(JsonSerializer.Serialize(e));
                     if (e.Message.IsQuery)
                     {
-                        if (e.Message.Questions.Any(q => q.Type == DnsType.PTR && q.Name.ToString().Contains(service) && !q.Name.ToString().Contains(instance)))
+                        if (e.Message.Questions.Any(q => q.Name.ToString().Contains(service)))
                         {
-                            serviceDiscovery.Advertise(serviceProfile);
+                            logger.Information(JsonSerializer.Serialize(e.Message));
+                            if (e.Message.Questions.Any(q => q.Type == DnsType.PTR && !q.Name.ToString().Contains(instance)))
+                            {
+                                serviceDiscovery.Advertise(serviceProfile);
+                            }
                         }
                     }
                 };
 
                 serviceDiscovery.ServiceInstanceDiscovered += (s, e) =>
                 {
-                    logger.Information(JsonSerializer.Serialize(e));
                     string name = e.ServiceInstanceName.ToString();
                     if (!name.Contains(instance) && name.Contains(service))
                     {
@@ -68,7 +70,6 @@ namespace Networking.Services
 
                 multicastService.AnswerReceived += async (s, e) =>
                 {
-                    logger.Information(JsonSerializer.Serialize(e));
                     IEnumerable<SRVRecord> services = e.Message.Answers.OfType<SRVRecord>();
                     foreach (SRVRecord srv in services)
                     {
