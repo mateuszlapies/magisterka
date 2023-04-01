@@ -61,7 +61,6 @@ namespace Networking.Services
                 serviceDiscovery.ServiceInstanceDiscovered += (s, e) =>
                 {
                     string name = e.ServiceInstanceName.ToString();
-                    logger.Information(name);
                     if (!name.Contains(instance) && name.Contains(service))
                     {
                         multicastService.SendQuery(e.ServiceInstanceName, type: DnsType.A);
@@ -70,15 +69,6 @@ namespace Networking.Services
 
                 multicastService.AnswerReceived += async (s, e) =>
                 {
-                    //IEnumerable<SRVRecord> services = e.Message.Answers.OfType<SRVRecord>();
-                    //foreach (SRVRecord srv in services)
-                    //{
-                    //    logger.Information(JsonSerializer.Serialize(srv.Target));
-                    //    if (!srv.Target.ToString().Contains(instance) && srv.Name.ToString().Contains(service))
-                    //    {
-                    //        multicastService.SendQuery(srv.Target, type: DnsType.A);
-                    //    }
-                    //}
 
                     IEnumerable<AddressRecord> addresses = e.Message.Answers.OfType<AddressRecord>();
                     foreach (AddressRecord address in addresses)
@@ -86,7 +76,6 @@ namespace Networking.Services
                         if (address.Type == DnsType.A)
                         {
                             string addressName = address.Name.ToString();
-                            logger.Information(JsonSerializer.Serialize(address.Name));
                             if (!addressName.Contains(instance) && addressName.Contains(service))
                             {
                                 if (address.Address.ToString().StartsWith("10.")
