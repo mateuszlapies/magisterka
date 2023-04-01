@@ -1,4 +1,5 @@
-﻿using Makaretu.Dns;
+﻿using Blockchain.Contexts;
+using Makaretu.Dns;
 using Networking.Endpoints.Instances;
 using Networking.Hubs;
 using Serilog;
@@ -49,7 +50,10 @@ namespace Networking.Services
                     {
                         if (e.Message.Questions.Any(q => q.Name.ToString().Contains(service)))
                         {
-                            Announce();
+                            if (Context.Synced)
+                            {
+                                Announce();
+                            }
                         }
                     }
                 };

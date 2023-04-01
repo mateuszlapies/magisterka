@@ -12,7 +12,7 @@ export default function Sync() {
             window.location.href = "app"
           }
         })
-    }, 1000)
+    }, 10000)
   }, [])
 
   return (
