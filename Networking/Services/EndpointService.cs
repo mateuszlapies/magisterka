@@ -2,6 +2,7 @@
 using Networking.Endpoints.Instances;
 using Networking.Hubs;
 using Serilog;
+using System.Text.Json;
 
 namespace Networking.Services
 {
@@ -45,17 +46,19 @@ namespace Networking.Services
 
                 multicastService.QueryReceived += (s, e) =>
                 {
+                    logger.Information(JsonSerializer.Serialize(e));
                     if (e.Message.IsQuery)
                     {
                         if (e.Message.Questions.Any(q => q.Type == DnsType.PTR && q.Name.ToString().Contains(service) && !q.Name.ToString().Contains(instance)))
                         {
-                            serviceDiscovery.Announce(serviceProfile);
+                            serviceDiscovery.Advertise(serviceProfile);
                         }
                     }
                 };
 
                 serviceDiscovery.ServiceInstanceDiscovered += (s, e) =>
                 {
+                    logger.Information(JsonSerializer.Serialize(e));
                     string name = e.ServiceInstanceName.ToString();
                     if (!name.Contains(instance) && name.Contains(service))
                     {
@@ -65,6 +68,7 @@ namespace Networking.Services
 
                 multicastService.AnswerReceived += async (s, e) =>
                 {
+                    logger.Information(JsonSerializer.Serialize(e));
                     IEnumerable<SRVRecord> services = e.Message.Answers.OfType<SRVRecord>();
                     foreach (SRVRecord srv in services)
                     {
