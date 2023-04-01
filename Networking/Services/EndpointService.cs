@@ -41,20 +41,15 @@ namespace Networking.Services
                     {
                         logger.Information("Network: {name}", nic.Name);
                     }
-                    serviceDiscovery.QueryServiceInstances(serviceName);
                 };
 
                 multicastService.QueryReceived += (s, e) =>
                 {
-                    if (e.Message.IsQuery)
+                    if (e.Message.IsQuery && e.Message.Questions.Any(q => q.Type == DnsType.PTR))
                     {
                         if (e.Message.Questions.Any(q => q.Name.ToString().Contains(service)))
                         {
-                            logger.Information(JsonSerializer.Serialize(e.Message));
-                            if (e.Message.Questions.Any(q => q.Type == DnsType.PTR && !q.Name.ToString().Contains(instance)))
-                            {
-                                serviceDiscovery.Advertise(serviceProfile);
-                            }
+                            Announce();
                         }
                     }
                 };
@@ -62,22 +57,24 @@ namespace Networking.Services
                 serviceDiscovery.ServiceInstanceDiscovered += (s, e) =>
                 {
                     string name = e.ServiceInstanceName.ToString();
+                    logger.Information(name);
                     if (!name.Contains(instance) && name.Contains(service))
                     {
-                        multicastService.SendQuery(e.ServiceInstanceName, type: DnsType.SRV);
+                        multicastService.SendQuery(e.ServiceInstanceName, type: DnsType.A);
                     }
                 };
 
                 multicastService.AnswerReceived += async (s, e) =>
                 {
-                    IEnumerable<SRVRecord> services = e.Message.Answers.OfType<SRVRecord>();
-                    foreach (SRVRecord srv in services)
-                    {
-                        if (!srv.Target.ToString().Contains(instance) && srv.Name.ToString().Contains(service))
-                        {
-                            multicastService.SendQuery(srv.Target, type: DnsType.A);
-                        }
-                    }
+                    //IEnumerable<SRVRecord> services = e.Message.Answers.OfType<SRVRecord>();
+                    //foreach (SRVRecord srv in services)
+                    //{
+                    //    logger.Information(JsonSerializer.Serialize(srv.Target));
+                    //    if (!srv.Target.ToString().Contains(instance) && srv.Name.ToString().Contains(service))
+                    //    {
+                    //        multicastService.SendQuery(srv.Target, type: DnsType.A);
+                    //    }
+                    //}
 
                     IEnumerable<AddressRecord> addresses = e.Message.Answers.OfType<AddressRecord>();
                     foreach (AddressRecord address in addresses)
@@ -85,7 +82,7 @@ namespace Networking.Services
                         if (address.Type == DnsType.A)
                         {
                             string addressName = address.Name.ToString();
-
+                            logger.Information(JsonSerializer.Serialize(address.Name));
                             if (!addressName.Contains(instance) && addressName.Contains(service))
                             {
                                 if (address.Address.ToString().StartsWith("10.")
