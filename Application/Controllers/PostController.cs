@@ -9,38 +9,31 @@ namespace Application.Controllers
 {
     [ApiController]
     [EnableCors("Local")]
-    [Route("api/[controller]")]
-    public class PostsController : ControllerBase
+    [Route("api/[controller]/[action]")]
+    public class PostController : ControllerBase
     {
-        private readonly PublicContext publicContext;
         private readonly PostService postService;
 
-        public PostsController(PublicContext publicContext, PostService postService)
+        public PostController( PostService postService)
         {
-            this.publicContext = publicContext;
             this.postService = postService;
         }
 
         [HttpGet]
-        public Response<Post> GetPost(Guid id)
+        public Response<KeyValuePair<Post, User>> GetPost(Guid id)
         {
             return new()
             {
-                Object = publicContext.Get<Post>(id)
+                Object = postService.GetPost(id).GetValueOrDefault()
             };
         }
 
         [HttpGet]
-        public Response<List<Post>> GetPosts()
+        public Response<List<KeyValuePair<Post, User>>> GetPosts()
         {
-            var posts = publicContext.Get<Post>();
-            foreach (var post in posts)
-            {
-                post.User = publicContext.Get<User>(post.UserId);
-            }
             return new()
             {
-                Object = posts
+                Object = postService.GetPosts()
             };
         }
 

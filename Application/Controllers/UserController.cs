@@ -1,7 +1,6 @@
 ﻿using Application.Data;
 using Application.Model;
 using Application.Services;
-using Blockchain.Contexts;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,26 +8,24 @@ namespace Application.Controllers
 {
     [ApiController]
     [EnableCors("Local")]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class UserController
     {
         private readonly ILogger<UserController> logger;
         private readonly UserService userService;
-        private readonly PublicContext publicContext;
 
-        public UserController(ILogger<UserController> logger, UserService userService, PublicContext publicContext)
+        public UserController(ILogger<UserController> logger, UserService userService)
         {
             this.logger = logger;
             this.userService = userService;
-            this.publicContext = publicContext;
         }
 
         [HttpGet]
-        public Response<User> GetUser(Guid id)
+        public Response<User> GetUser(string owner)
         {
             return new()
             {
-                Object = publicContext.Get<User>(id)
+                Object = userService.GetUser(owner)
             };
         }
 
@@ -37,7 +34,7 @@ namespace Application.Controllers
         {
             return new()
             {
-                Object = publicContext.Get<User>()
+                Object = userService.GetUsers()
             };
         }
 

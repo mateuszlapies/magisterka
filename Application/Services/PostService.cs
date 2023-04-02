@@ -1,6 +1,7 @@
 ﻿using Application.Jobs;
 using Application.Model;
 using Blockchain.Contexts;
+using Blockchain.Model;
 using Hangfire;
 
 namespace Application.Services
@@ -20,14 +21,49 @@ namespace Application.Services
             this.rsa = rsa;
         }
 
+        public KeyValuePair<Post, User>? GetPost(Guid id)
+        {
+            var link = lockContext.Get<Post>(id);
+            if (link != null)
+            {
+                var userLink = lockContext.Get<User>()
+                    .Where(q => q.Signature.Owner == link.Signature.Owner)
+                    .OrderByDescending(o => o.Timestamp)
+                    .SingleOrDefault();
+                if (userLink != null)
+                {
+                    var post = link.Object as Post;
+                    var user = userLink.Object as User;
+                    return new(post, user);
+                }
+            }
+            return null;
+        }
+
+        public List<KeyValuePair<Post, User>> GetPosts(int first = 10)
+        {
+            List<KeyValuePair<Post, User>> posts = new();
+            var postsId = lockContext.Get<Post>()
+                .OrderByDescending(o => o.Timestamp)
+                .Take(first)
+                .Select(s => s.Id);
+            foreach (var postId in postsId)
+            {
+                var post = GetPost(postId);
+                if (post.HasValue)
+                {
+                    posts.Add(post.Value);
+                }
+            }
+            return posts;
+        }
+
         public string CreatePost(string message)
         {
             if (Context.Synced)
             {
-                var user = lockContext.Get<User>().Single(q => q.Signature.Owner == rsa.GetPublicKey());
                 var id = publicContext.Add<Post>(new Post()
                 {
-                    UserId = user.Id,
                     Message = message
                 }, rsa.GetParameters(true));
                 var link = lockContext.Get(id);

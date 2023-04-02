@@ -77,6 +77,11 @@ namespace Blockchain.Contexts
             return link;
         }
 
+        public Link Get<T>(Guid id)
+        {
+            return Get<T>().Where(q => q.Id == id).SingleOrDefault();
+        }
+
         public List<Link> Get<T>()
         {
             return Chain.Query().Where(q => q.ObjectType == typeof(T).ToString()).ToList();

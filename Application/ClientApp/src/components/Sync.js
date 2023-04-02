@@ -5,9 +5,9 @@ export default function Sync() {
   useEffect(() => {
     let interval = setInterval(() => {
       fetch("/api/Status/Synced")
-        .then(r => r.text())
+        .then(r => r.json())
         .then(t => {
-          if (t === "true") {
+          if (t.object === true) {
             clearInterval(interval)
             window.location.href = "app"
           }

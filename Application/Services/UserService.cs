@@ -20,6 +20,33 @@ namespace Application.Services
             this.rsa = rsa;
         }
 
+        public User GetUser(string owner)
+        {
+            var link = lockContext.Get<User>()
+                .Where(q => q.Signature.Owner == owner)
+                .OrderByDescending(o => o.Timestamp)
+                .FirstOrDefault();
+
+            return link?.Object as User;
+        }
+
+        public List<User> GetUsers()
+        {
+            List<User> users = new();
+            var owners = lockContext.Get<User>()
+                .DistinctBy(d => d.Signature.Owner)
+                .Select(s => s.Signature.Owner);
+            foreach (var owner in owners)
+            {
+                var user = GetUser(owner);
+                if (user != null)
+                {
+                    users.Add(user);
+                }
+            }
+            return users;
+        }
+
         public string CreateUser(string username)
         {
             if (Context.Synced)

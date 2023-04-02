@@ -80,7 +80,7 @@ namespace Blockchain.Contexts
                 ObjectType = typeof(T).ToString(),
                 LastId = last?.Id,
                 LastLink = last,
-                Signature = null
+                Timestamp = DateTime.UtcNow,
             };
             link.Signature = Sign(link, key);
             Temp.Insert(link);
