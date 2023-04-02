@@ -2,7 +2,6 @@
 using Application.Model;
 using Blockchain.Contexts;
 using Hangfire;
-using System.Security.Cryptography;
 
 namespace Application.Services
 {
@@ -25,19 +24,18 @@ namespace Application.Services
         {
             if (Context.Synced)
             {
-                if (!publicContext.Get<Post>().Any(q => q.Name == username))
+                var user = lockContext.Get<User>().Single(q => q.Signature.Owner == rsa.GetPublicKey());
+                var id = publicContext.Add<Post>(new Post()
                 {
-                    var id = publicContext.Add<Post>(new Post()
-                    {
-                        Message = message
-                    }, rsa.GetParameters(true));
-                    var link = lockContext.Get(id);
-                    return BackgroundJob.Enqueue<LockJob>(x => x.Run(link, rsa.GetOwner(), default));
-                }
+                    UserId = user.Id,
+                    Message = message
+                }, rsa.GetParameters(true));
+                var link = lockContext.Get(id);
+                return BackgroundJob.Enqueue<LockJob>(x => x.Run(link, rsa.GetOwner(), default));
             }
             else
             {
-                logger.LogError("Failed to create user {username}. Database is not synced", username);
+                logger.LogError("Failed to create post. Database is not synced");
             }
             return string.Empty;
         }

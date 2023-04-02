@@ -34,6 +34,15 @@ builder.Services.AddHangfire(configuration => configuration
             .UseRecommendedSerializerSettings()
             .UseSQLiteStorage(Sequal.ConnectionString()));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "Local",
+                      policy =>
+                      {
+                          policy.WithOrigins("https://localhost:8080", "https://localhost:44487");
+                      });
+});
+
 builder.Services.AddHostedService<HangfireJobs>();
 
 builder.Services.AddTransient<CreateContext>();

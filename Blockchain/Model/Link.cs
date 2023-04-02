@@ -8,7 +8,7 @@ namespace Blockchain.Model
         [BsonId]
         public Guid Id { get; set; }
         public object Object { get; set; }
-        public Type ObjectType { get; set; }
+        public string ObjectType { get; set; }
         public Signature Signature { get; set; }
 
         public Guid? LastId { get; set; }

@@ -2,12 +2,14 @@
 using Application.Model;
 using Application.Services;
 using Blockchain.Contexts;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Application.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("Local")]
+    [Route("api/[controller]")]
     public class PostsController : ControllerBase
     {
         private readonly PublicContext publicContext;

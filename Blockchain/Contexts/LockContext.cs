@@ -59,7 +59,7 @@ namespace Blockchain.Contexts
             return Add(id, link.Object, link.ObjectType, parameters);
         }
 
-        private Link Add(Guid id, object obj, Type objType, RSAParameters key)
+        private Link Add(Guid id, object obj, string objType, RSAParameters key)
         {
             Link last = GetLastLink();
             Link link = new()
@@ -79,7 +79,7 @@ namespace Blockchain.Contexts
 
         public List<Link> Get<T>()
         {
-            return Chain.Query().Where(q => q.ObjectType == typeof(T)).ToList();
+            return Chain.Query().Where(q => q.ObjectType == typeof(T).ToString()).ToList();
         }
 
         public new Link Get(Guid id) => base.Get(id);

@@ -77,7 +77,7 @@ namespace Blockchain.Contexts
             {
                 Id = id,
                 Object = obj,
-                ObjectType = typeof(T),
+                ObjectType = typeof(T).ToString(),
                 LastId = last?.Id,
                 LastLink = last,
                 Signature = null
