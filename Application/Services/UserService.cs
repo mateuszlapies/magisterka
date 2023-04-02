@@ -2,7 +2,6 @@
 using Application.Model;
 using Blockchain.Contexts;
 using Hangfire;
-using Networking.Services;
 
 namespace Application.Services
 {
