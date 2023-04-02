@@ -72,6 +72,7 @@ if (!app.Environment.IsDevelopment())
     app.MapHangfireDashboard();
 }
 
+app.UseCors();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
