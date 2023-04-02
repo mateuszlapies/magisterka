@@ -133,7 +133,7 @@ namespace Blockchain.Contexts
             List<Link> links = new();
             var lastChainId = Context.GetLastId();
             var lastChainLink = base.GetLastLink();
-            var link = Temp.Query().Where(q => q.LastId == lastChainId).Single();
+            var link = Temp.Query().Where(q => q.LastId == lastChainId).SingleOrDefault();
             while (link != null && ((!link.LastId.HasValue && !lastChainId.HasValue) || (lastChainLink != null && lastChainLink.Lock != null && lastChainLink.Lock.Confirmed)))
             {
                 links.Add(link);
