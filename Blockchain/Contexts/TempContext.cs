@@ -172,6 +172,19 @@ namespace Blockchain.Contexts
             }
         }
 
+        protected new bool Verify(Guid id)
+        {
+            var link = Get(id);
+            if (link.LastId.HasValue)
+            {
+                link.LastLink = Get(link.LastId.Value);
+                return Verify(link) && Verify(link.LastId.Value);
+            } else
+            {
+                return Verify(link);
+            }
+        }
+
         protected static bool VerifyOwner(string owner, string ownerHash)
         {
             using RSACryptoServiceProvider rsa = new();
@@ -195,7 +208,6 @@ namespace Blockchain.Contexts
             {
                 return null;
             }
-            
         }
 
         protected static Guid? GetLastChainId()

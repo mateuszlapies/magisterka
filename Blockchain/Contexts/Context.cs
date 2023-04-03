@@ -65,7 +65,7 @@ namespace Blockchain.Contexts
         protected bool Verify(Guid id)
         {
             Link link = Get(id);
-            if (link.LastId != null)
+            if (link.LastId.HasValue)
             {
                 link.LastLink = Get(link.LastId.Value);
                 return Verify(link) && Verify(link.LastId.Value);
