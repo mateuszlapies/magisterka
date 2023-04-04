@@ -5,7 +5,7 @@ namespace Networking.Utils
 {
     public static class LiteSerializer
     {
-        private static BsonMapper mapper = BsonMapper.Global;
+        private static readonly BsonMapper mapper = BsonMapper.Global;
 
         public static string Serialize(Link link)
         {

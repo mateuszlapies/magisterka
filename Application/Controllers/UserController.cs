@@ -38,7 +38,7 @@ namespace Application.Controllers
             };
         }
 
-        [HttpPost]
+        [HttpPut]
         public Response<string> CreateUser(Request<string> request)
         {
             logger.LogInformation("Creating new user {username}", request.Object);
