@@ -62,11 +62,10 @@ namespace Application.Services
         {
             if (Context.Synced)
             {
-                var id = publicContext.Add<Post>(new Post()
+                var link = publicContext.Add<Post>(new Post()
                 {
                     Message = message
                 }, rsa.GetParameters(true));
-                var link = lockContext.Get(id);
                 return BackgroundJob.Enqueue<LockJob>(x => x.Run(link, rsa.GetOwner(), default));
             }
             else
