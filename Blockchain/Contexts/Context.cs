@@ -136,6 +136,7 @@ namespace Blockchain.Contexts
         {
             Signature hash = link.Signature;
             link.Signature = null;
+            link.Lock = null;
             string json = Serialize(link);
             using RSACryptoServiceProvider rsa = new();
             rsa.ImportRSAPublicKey(Convert.FromBase64String(hash.Owner), out int bytesRead);

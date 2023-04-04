@@ -16,7 +16,6 @@ namespace Blockchain.Model
         [BsonIgnore]
         public Link LastLink { get; set; }
 
-        [JsonIgnore]
         public Lock Lock { get; set; }
     }
 }
