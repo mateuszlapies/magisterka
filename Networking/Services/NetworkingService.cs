@@ -2,6 +2,7 @@
 using Networking.Data.Requests;
 using Networking.Data.Responses;
 using Networking.Hubs;
+using Networking.Utils;
 using Serilog;
 
 namespace Networking.Services
@@ -35,7 +36,7 @@ namespace Networking.Services
                 {
                     if (t.Result.Success)
                     {
-                        links.Add(t.Result.Links);
+                        links.Add(LiteSerializer.Deserialize(t.Result.Links));
                     }
                 }
                     
@@ -46,11 +47,11 @@ namespace Networking.Services
             return links;
         }
 
-        public static void Lock(Link link, string owner)
+        public static async Task Lock(Link link, string owner)
         {
             LockRequest request = new()
             {
-                NextLink = link,
+                NextLink = LiteSerializer.Serialize(link),
                 Owner = owner
             };
 
@@ -61,7 +62,7 @@ namespace Networking.Services
             var endpoints = EndpointService.Instances.Get<LockEndpoint>();
 
             foreach (var endpoint in endpoints) {
-                tasks.Add(Task.Factory.StartNew(async () =>
+                tasks.Add(await Task.Factory.StartNew(async () =>
                 {
                     var response = await endpoint.Lock(request);
                     if (response.Success)
@@ -79,22 +80,24 @@ namespace Networking.Services
             tasks.Clear();
             if (successes.Count > failures.Count)
             {
+                var confirmRequest = new ConfirmRequest() { Id = link.Id };
                 foreach (var endpoint in endpoints)
                 {
-                    tasks.Add(Task.Factory.StartNew(async () =>
+                    tasks.Add(await Task.Factory.StartNew(async () =>
                     {
-                        await endpoint.Confirm(link.Id);
+                        await endpoint.Confirm(confirmRequest);
                     }));
                 }
 
                 Task.WaitAll(tasks.ToArray());
             } else if (endpoints.Count > 0)
             {
+                var unlockRequest = new UnlockRequest() { Id = link.Id };
                 foreach (var endpoint in successes)
                 {
-                    tasks.Add(Task.Factory.StartNew(async () =>
+                    tasks.Add(await Task.Factory.StartNew(async () =>
                     {
-                        await endpoint.Unlock(link.Id);
+                        await endpoint.Unlock(unlockRequest);
                     }));
                 }
 

@@ -1,4 +1,5 @@
 ﻿using Blockchain.Model;
+using System.Data;
 using System.Security.Cryptography;
 
 namespace Blockchain.Contexts
@@ -51,30 +52,26 @@ namespace Blockchain.Contexts
             CalculateLastLink();
         }
 
-        public Link Refresh(Guid id, RSAParameters parameters)
-        {
-            var link = Get(id);
-            Remove(id);
-            CalculateLastLink();
-            return Add(id, link.Object, link.ObjectType, parameters);
-        }
-
-        private Link Add(Guid id, object obj, string objType, RSAParameters key)
+        public Link Refresh(Link link, RSAParameters parameters)
         {
             Link last = GetLastLink();
-            Link link = new()
-            {
-                Id = id,
-                Object = obj,
-                ObjectType = objType,
-                LastId = last?.Id,
-                LastLink = last,
-                Signature = null
-            };
-            link.Signature = Sign(link, key);
+            link.LastId = last?.Id;
+            link.LastLink = last;
+            link.Signature = null;
+            link.Signature = Sign(link, parameters);
             Temp.Insert(link);
             CalculateLastLink();
             return link;
+        }
+
+        public Link Get<T>(Guid id)
+        {
+            return Get<T>().Where(q => q.Id == id).SingleOrDefault();
+        }
+
+        public List<Link> Get<T>()
+        {
+            return Chain.Query().Where(q => q.ObjectType == typeof(T).ToString()).ToList();
         }
 
         public new Link Get(Guid id) => base.Get(id);

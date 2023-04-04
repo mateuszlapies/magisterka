@@ -65,7 +65,10 @@ namespace Blockchain.Contexts
             }
             if (!Temp.Exists(q => q.Id == link.Id))
             {
-                Add(link);
+                Temp.Insert(link);
+            } else
+            {
+                Temp.Update(link);
             }
         }
 
@@ -77,10 +80,10 @@ namespace Blockchain.Contexts
             {
                 Id = id,
                 Object = obj,
-                ObjectType = obj.GetType().ToString(),
+                ObjectType = typeof(T).ToString(),
                 LastId = last?.Id,
                 LastLink = last,
-                Signature = null
+                Timestamp = DateTime.UtcNow,
             };
             link.Signature = Sign(link, key);
             Temp.Insert(link);
@@ -172,6 +175,19 @@ namespace Blockchain.Contexts
             }
         }
 
+        protected new bool Verify(Guid id)
+        {
+            var link = Get(id);
+            if (link.LastId.HasValue)
+            {
+                link.LastLink = Get(link.LastId.Value);
+                return Verify(link) && Verify(link.LastId.Value);
+            } else
+            {
+                return Verify(link);
+            }
+        }
+
         protected static bool VerifyOwner(string owner, string ownerHash)
         {
             using RSACryptoServiceProvider rsa = new();
@@ -195,7 +211,6 @@ namespace Blockchain.Contexts
             {
                 return null;
             }
-            
         }
 
         protected static Guid? GetLastChainId()

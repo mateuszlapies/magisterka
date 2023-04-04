@@ -34,6 +34,21 @@ builder.Services.AddHangfire(configuration => configuration
             .UseRecommendedSerializerSettings()
             .UseSQLiteStorage(Sequal.ConnectionString()));
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy => policy.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+    );
+    options.AddPolicy(
+        name: "Local",
+        policy => policy.WithOrigins("https://localhost:8001", "https://localhost:44487")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+    );
+});
+
 builder.Services.AddHostedService<HangfireJobs>();
 
 builder.Services.AddTransient<CreateContext>();
@@ -44,6 +59,8 @@ builder.Services.AddTransient<SyncContext>();
 builder.Services.AddTransient<EndpointService>();
 builder.Services.AddTransient<RSAService>();
 builder.Services.AddTransient<UserService>();
+builder.Services.AddTransient<PostService>();
+builder.Services.AddTransient<LockService>();
 
 var app = builder.Build();
 
@@ -66,6 +83,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseCors();
 
 app.MapControllerRoute(
     name: "default",

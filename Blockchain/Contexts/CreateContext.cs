@@ -15,9 +15,9 @@ namespace Blockchain.Contexts
             return Chain.Query().Where(q => q.ObjectType == typeof(T).ToString()).Select(x => (T)x.Object).ToList();
         }
 
-        public new Guid Add<T>(T obj, RSAParameters key)
+        public new Link Add<T>(T obj, RSAParameters key)
         {
-            return base.Add<T>(obj, key).Id;
+            return base.Add<T>(obj, key);
         }
 
         public new void Clear() => base.Clear();

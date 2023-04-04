@@ -1,4 +1,4 @@
-﻿namespace Application.Model
+﻿namespace Model
 {
     public class User
     {

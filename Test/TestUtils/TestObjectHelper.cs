@@ -23,7 +23,7 @@ namespace TestUtils
             Guid id = Guid.Empty;
             for (int i = 0; i < amount; i++)
             {
-                id = context.Add<TestObject>(testObject, parameters);
+                id = context.Add<TestObject>(testObject, parameters).Id;
             }
             return id;
         }

@@ -27,7 +27,7 @@ namespace Application.Jobs
             try
             {
                 List<List<Link>> links = NetworkingService.Sync(lastId);
-                logger.LogInformation("Received {amount} link(s)", links.Count);
+                logger.LogInformation("Received {amount} response(s)", links.Count);
                 syncContext.Sync(links);
             } catch (Exception)
             {

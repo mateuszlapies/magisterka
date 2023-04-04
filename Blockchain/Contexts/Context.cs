@@ -10,7 +10,12 @@ namespace Blockchain.Contexts
     {
         protected LiteDatabase Database { get; }
         public ILiteCollection<Link> Chain { get; }
-        public static bool Synced { get; protected set; }
+
+        #if DEBUG
+            public static bool Synced { get { return true; } protected set { } }
+        #else
+            public static bool Synced { get; protected set; }
+        #endif
 
         private static Guid? lastId;
 
@@ -65,7 +70,7 @@ namespace Blockchain.Contexts
         protected bool Verify(Guid id)
         {
             Link link = Get(id);
-            if (link.LastId != null)
+            if (link.LastId.HasValue)
             {
                 link.LastLink = Get(link.LastId.Value);
                 return Verify(link) && Verify(link.LastId.Value);
@@ -131,6 +136,7 @@ namespace Blockchain.Contexts
         {
             Signature hash = link.Signature;
             link.Signature = null;
+            link.Lock = null;
             string json = Serialize(link);
             using RSACryptoServiceProvider rsa = new();
             rsa.ImportRSAPublicKey(Convert.FromBase64String(hash.Owner), out int bytesRead);
