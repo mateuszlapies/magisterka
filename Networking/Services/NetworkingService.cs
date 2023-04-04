@@ -47,7 +47,7 @@ namespace Networking.Services
             return links;
         }
 
-        public static void Lock(Link link, string owner)
+        public static async Task Lock(Link link, string owner)
         {
             LockRequest request = new()
             {
@@ -62,7 +62,7 @@ namespace Networking.Services
             var endpoints = EndpointService.Instances.Get<LockEndpoint>();
 
             foreach (var endpoint in endpoints) {
-                tasks.Add(Task.Factory.StartNew(async () =>
+                tasks.Add(await Task.Factory.StartNew(async () =>
                 {
                     var response = await endpoint.Lock(request);
                     if (response.Success)

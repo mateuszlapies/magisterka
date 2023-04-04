@@ -20,7 +20,7 @@ namespace Application.Jobs
             this.rsaService = rsaService;
         }
 
-        public void Run(Guid id, string owner, PerformContext performContext)
+        public async Task Run(Guid id, string owner, PerformContext performContext)
         {
             var link = lockContext.Get(id);
             int retries = performContext.GetJobParameter<int>("RetryCount");
@@ -39,7 +39,7 @@ namespace Application.Jobs
                 {
                     lockContext.Lock(lockContext.Get(link.LastId.Value), lockContext.Get(id), rsaService.GetOwner());
                 }
-                NetworkingService.Lock(link, owner);
+                await NetworkingService.Lock(link, owner);
                 lockContext.Confirm(id);
             }
         }
