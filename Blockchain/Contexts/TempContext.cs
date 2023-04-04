@@ -66,6 +66,9 @@ namespace Blockchain.Contexts
             if (!Temp.Exists(q => q.Id == link.Id))
             {
                 Temp.Insert(link);
+            } else
+            {
+                Temp.Update(link);
             }
         }
 
