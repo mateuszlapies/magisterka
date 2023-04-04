@@ -1,5 +1,4 @@
 ﻿using Blockchain.Model;
-using LiteDB;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
 using Networking.Hubs;
