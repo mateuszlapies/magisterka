@@ -80,22 +80,24 @@ namespace Networking.Services
             tasks.Clear();
             if (successes.Count > failures.Count)
             {
+                var confirmRequest = new ConfirmRequest() { Id = link.Id };
                 foreach (var endpoint in endpoints)
                 {
                     tasks.Add(await Task.Factory.StartNew(async () =>
                     {
-                        await endpoint.Confirm(link.Id);
+                        await endpoint.Confirm(confirmRequest);
                     }));
                 }
 
                 Task.WaitAll(tasks.ToArray());
             } else if (endpoints.Count > 0)
             {
+                var unlockRequest = new UnlockRequest() { Id = link.Id };
                 foreach (var endpoint in successes)
                 {
                     tasks.Add(await Task.Factory.StartNew(async () =>
                     {
-                        await endpoint.Unlock(link.Id);
+                        await endpoint.Unlock(unlockRequest);
                     }));
                 }
 

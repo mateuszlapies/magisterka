@@ -13,14 +13,14 @@ namespace Networking.Hubs
             return await Request<LockRequest, LockResponse>(request, "Lock");
         }
 
-        public async Task Unlock(Guid id)
+        public async Task Confirm(ConfirmRequest request)
         {
-            await Request(id, "Unlock");
+            await Request(request, "Confirm");
         }
 
-        public async Task Confirm(Guid id)
+        public async Task Unlock(UnlockRequest request)
         {
-            await Request(id, "Confirm");
+            await Request(request, "Unlock");
         }
     }
 }

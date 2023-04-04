@@ -31,15 +31,15 @@ namespace Networking.Controllers
         }
 
         [HttpPost]
-        public void Confirm(Guid id)
+        public void Confirm(ConfirmRequest request)
         {
-            lockService.Confirm(id);
+            lockService.Confirm(request.Id);
         }
 
         [HttpPost]
-        public void Unlock(Guid id)
+        public void Unlock(UnlockRequest request)
         {
-            lockService.Unlock(id);
+            lockService.Unlock(request.Id);
         }
     }
 }
