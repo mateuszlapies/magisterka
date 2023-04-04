@@ -1,18 +1,14 @@
 ﻿using Blockchain.Model;
-using LiteDB;
+using System.Text.Json;
 
 namespace Networking.Utils
 {
     public static class LiteSerializer
     {
-        private static readonly BsonMapper mapper = BsonMapper.Global;
 
         public static string Serialize(Link link)
         {
-            var document = mapper.ToDocument<Link>(link);
-            var value = mapper.Serialize<BsonDocument>(document);
-            var str = JsonSerializer.Serialize(value);
-            return str;
+            return JsonSerializer.Serialize(link);
         }
 
         public static List<string> Serialize(List<Link> links)
@@ -28,9 +24,9 @@ namespace Networking.Utils
 
         public static Link Deserialize(string str)
         {
-            var value = JsonSerializer.Deserialize(str);
-            var document = mapper.Deserialize<BsonDocument>(value);
-            var link = mapper.ToObject<Link>(document);
+            var link = JsonSerializer.Deserialize<Link>(str);
+            Type type = Type.GetType(string.Format("{0}, {1}", link.ObjectType, "Model"));
+            link.Object = JsonSerializer.Deserialize(link.Object.ToString(), type);
             return link;
         }
 

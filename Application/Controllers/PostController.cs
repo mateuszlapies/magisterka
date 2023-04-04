@@ -1,5 +1,5 @@
 ﻿using Application.Data;
-using Application.Model;
+using Model;
 using Application.Services;
 using Blockchain.Contexts;
 using Microsoft.AspNetCore.Cors;

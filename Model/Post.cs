@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Application.Model
+namespace Model
 {
     public class Post
     {

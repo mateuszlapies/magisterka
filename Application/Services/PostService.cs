@@ -1,5 +1,5 @@
 ﻿using Application.Jobs;
-using Application.Model;
+using Model;
 using Blockchain.Contexts;
 using Blockchain.Model;
 using Hangfire;
