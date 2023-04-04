@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Networking.Data.Enums;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
+using Networking.Utils;
 
 namespace Networking.Controllers
 {
@@ -20,7 +21,7 @@ namespace Networking.Controllers
         [HttpPost]
         public LockResponse Lock(LockRequest request)
         {
-            var (error, id) = lockService.Lock(request.NextLink, request.Owner);
+            var (error, id) = lockService.Lock(LiteSerializer.Deserialize(request.NextLink), request.Owner);
             return new LockResponse()
             {
                 Success = error == LockError.None,

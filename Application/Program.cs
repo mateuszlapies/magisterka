@@ -60,6 +60,7 @@ builder.Services.AddTransient<EndpointService>();
 builder.Services.AddTransient<RSAService>();
 builder.Services.AddTransient<UserService>();
 builder.Services.AddTransient<PostService>();
+builder.Services.AddTransient<LockService>();
 
 var app = builder.Build();
 

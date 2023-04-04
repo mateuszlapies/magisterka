@@ -52,7 +52,7 @@ namespace Networking.Services
         {
             LockRequest request = new()
             {
-                NextLink = link,
+                NextLink = LiteSerializer.Serialize(link),
                 Owner = owner
             };
 
