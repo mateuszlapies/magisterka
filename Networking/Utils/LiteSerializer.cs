@@ -8,7 +8,8 @@ namespace Networking.Utils
 
         public static string Serialize(Link link)
         {
-            return JsonSerializer.Serialize(link);
+            var str = JsonSerializer.Serialize(link);
+            return str;
         }
 
         public static List<string> Serialize(List<Link> links)
