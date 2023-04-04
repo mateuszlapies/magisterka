@@ -1,7 +1,9 @@
 ﻿using Blockchain.Model;
+using LiteDB;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
 using Networking.Hubs;
+using Networking.Utils;
 using Serilog;
 
 namespace Networking.Services
@@ -35,7 +37,7 @@ namespace Networking.Services
                 {
                     if (t.Result.Success)
                     {
-                        links.Add(t.Result.Links);
+                        links.Add(LiteSerializer.Deserialize(t.Result.Links));
                     }
                 }
                     

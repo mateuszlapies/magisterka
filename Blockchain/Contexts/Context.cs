@@ -10,7 +10,12 @@ namespace Blockchain.Contexts
     {
         protected LiteDatabase Database { get; }
         public ILiteCollection<Link> Chain { get; }
-        public static bool Synced { get; protected set; }
+
+        #if DEBUG
+            public static bool Synced = true;
+        #else
+            public static bool Synced { get; protected set; }
+        #endif
 
         private static Guid? lastId;
 

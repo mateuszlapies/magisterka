@@ -1,8 +1,11 @@
 ﻿using Blockchain.Contexts;
+using Blockchain.Model;
+using LiteDB;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Networking.Data.Requests;
 using Networking.Data.Responses;
+using Networking.Utils;
 
 namespace Networking.Controllers
 {
@@ -29,7 +32,8 @@ namespace Networking.Controllers
             {
                 return response;
             }
-            (response.Success, response.Links) = context.Get(request.LastId);
+            (response.Success, List<Link> list) = context.Get(request.LastId);
+            response.Links = LiteSerializer.Serialize(list);
             return response;
         }
     }

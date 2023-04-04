@@ -4,6 +4,6 @@ namespace Networking.Data.Responses
 {
     public class SyncResponse : Response
     {
-        public List<Link> Links { get; set; }
+        public List<string> Links { get; set; }
     }
 }
