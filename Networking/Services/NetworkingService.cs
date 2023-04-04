@@ -82,7 +82,7 @@ namespace Networking.Services
             {
                 foreach (var endpoint in endpoints)
                 {
-                    tasks.Add(Task.Factory.StartNew(async () =>
+                    tasks.Add(await Task.Factory.StartNew(async () =>
                     {
                         await endpoint.Confirm(link.Id);
                     }));
@@ -93,7 +93,7 @@ namespace Networking.Services
             {
                 foreach (var endpoint in successes)
                 {
-                    tasks.Add(Task.Factory.StartNew(async () =>
+                    tasks.Add(await Task.Factory.StartNew(async () =>
                     {
                         await endpoint.Unlock(link.Id);
                     }));
