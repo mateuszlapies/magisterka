@@ -98,6 +98,11 @@ namespace Blockchain.Contexts
                 }
             }
 
+            if (link != null)
+            {
+                links.Add(link);
+            }
+
             if (links.Count > 0)
             {
                 Chain.Insert(links);

@@ -26,11 +26,10 @@ namespace Application.Jobs
             if (retries > 0)
             {
                 lockContext.Unlock(link.Id);
-                link = lockContext.Refresh(link.Id, rsaService.GetParameters(true));
+                link = lockContext.Refresh(link, rsaService.GetParameters(true));
             } else if (retries > 4)
             {
                 lockContext.Unlock(link.Id);
-                lockContext.Remove(link.Id);
                 link = null;
             }
             if (link != null)
@@ -40,7 +39,7 @@ namespace Application.Jobs
                     lockContext.Lock(lockContext.Get(link.LastId.Value), lockContext.Get(link.Id), rsaService.GetOwner());
                 }
                 NetworkingService.Lock(link, owner);
-               lockContext.Confirm(link.Id);
+                lockContext.Confirm(link.Id);
             }
         }
     }

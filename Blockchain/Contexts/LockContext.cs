@@ -51,12 +51,10 @@ namespace Blockchain.Contexts
             CalculateLastLink();
         }
 
-        public Link Refresh(Guid id, RSAParameters parameters)
+        public Link Refresh(Link link, RSAParameters parameters)
         {
-            var link = Get(id);
-            Remove(id);
             CalculateLastLink();
-            return Add(id, link.Object, link.ObjectType, parameters);
+            return Add(link.Id, link.Object, link.ObjectType, parameters);
         }
 
         private Link Add(Guid id, object obj, string objType, RSAParameters key)
