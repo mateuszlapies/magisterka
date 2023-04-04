@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Model
+﻿namespace Model
 {
     public class Post
     {

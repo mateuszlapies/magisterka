@@ -5,7 +5,6 @@ namespace Networking.Utils
 {
     public static class LiteSerializer
     {
-
         public static string Serialize(Link link)
         {
             return JsonSerializer.Serialize(link);

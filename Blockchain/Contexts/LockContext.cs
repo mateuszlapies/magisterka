@@ -1,4 +1,6 @@
 ﻿using Blockchain.Model;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using System.Data;
 using System.Security.Cryptography;
 
 namespace Blockchain.Contexts
@@ -53,23 +55,11 @@ namespace Blockchain.Contexts
 
         public Link Refresh(Link link, RSAParameters parameters)
         {
-            CalculateLastLink();
-            return Add(link.Id, link.Object, link.ObjectType, parameters);
-        }
-
-        private Link Add(Guid id, object obj, string objType, RSAParameters key)
-        {
             Link last = GetLastLink();
-            Link link = new()
-            {
-                Id = id,
-                Object = obj,
-                ObjectType = objType,
-                LastId = last?.Id,
-                LastLink = last,
-                Signature = null
-            };
-            link.Signature = Sign(link, key);
+            link.LastId = last?.Id;
+            link.LastLink = last;
+            link.Signature = null;
+            link.Signature = Sign(link, parameters);
             Temp.Insert(link);
             CalculateLastLink();
             return link;
