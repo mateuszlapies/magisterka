@@ -9,14 +9,14 @@ namespace Application.Services
     public class PostService
     {
         private readonly ILogger<UserService> logger;
-        private readonly CreateContext publicContext;
+        private readonly CreateContext createContext;
         private readonly LockContext lockContext;
         private readonly RSAService rsa;
 
         public PostService(ILogger<UserService> logger, CreateContext publicContext, LockContext lockContext, RSAService rsa)
         {
             this.logger = logger;
-            this.publicContext = publicContext;
+            this.createContext = publicContext;
             this.lockContext = lockContext;
             this.rsa = rsa;
         }
@@ -62,11 +62,11 @@ namespace Application.Services
         {
             if (Context.Synced)
             {
-                var link = publicContext.Add<Post>(new Post()
+                var link = createContext.Add<Post>(new Post()
                 {
                     Message = message
                 }, rsa.GetParameters(true));
-                return BackgroundJob.Enqueue<LockJob>(x => x.Run(link, rsa.GetOwner(), default));
+                return BackgroundJob.Enqueue<LockJob>(x => x.Run(link.Id, rsa.GetOwner(), default));
             }
             else
             {

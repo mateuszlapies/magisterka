@@ -57,7 +57,7 @@ namespace Application.Services
                     {
                         Name = username
                     }, rsa.GetParameters(true));
-                    return BackgroundJob.Enqueue<LockJob>(x => x.Run(link, rsa.GetOwner(), default));
+                    return BackgroundJob.Enqueue<LockJob>(x => x.Run(link.Id, rsa.GetOwner(), default));
                 }
                 else
                 {

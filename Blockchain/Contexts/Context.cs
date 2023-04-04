@@ -12,7 +12,7 @@ namespace Blockchain.Contexts
         public ILiteCollection<Link> Chain { get; }
 
         #if DEBUG
-            public static bool Synced = true;
+            public static bool Synced { get { return true; } protected set { } }
         #else
             public static bool Synced { get; protected set; }
         #endif
