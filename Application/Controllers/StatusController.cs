@@ -30,7 +30,7 @@ namespace Application.Controllers
         }
 
         [HttpGet]
-        public Response<bool> User()
+        public new Response<bool> User()
         {
             return new()
             {
