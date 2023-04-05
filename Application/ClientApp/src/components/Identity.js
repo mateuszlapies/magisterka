@@ -1,19 +1,50 @@
 import {useEffect, useState} from "react";
-import {Button, Form, FormFeedback, FormGroup, FormText, Input, Label, Modal, ModalBody, ModalHeader} from "reactstrap";
+import {
+    Button,
+    Form,
+    FormFeedback,
+    FormGroup,
+    FormText,
+    Input,
+    Label,
+    Modal,
+    ModalBody,
+    ModalHeader,
+    Spinner
+} from "reactstrap";
 
 export default function Identity() {
     let [hasUser, setHasUser] = useState(false);
     let [valid, setValid] = useState();
     let [processing, setProcessing] = useState(false);
+    let [job, setJob] = useState();
 
     useEffect(() => {
-        fetch("api/Status/User")
-            .then(r => r.json())
-            .then(j => setHasUser(j.object));
-    });
+        if (!processing) {
+            fetch("api/Status/User")
+              .then(r => r.json())
+              .then(j => setHasUser(j.object));
+        }
+    }, [processing]);
+
+    useEffect(() => {
+        if (job) {
+            let interval = setInterval(() => {
+                fetch("api/Status/Job?id=" + job)
+                  .then(r => r.json())
+                  .then(j => {
+                      if (j.object === "Succeeded") {
+                          setJob(undefined)
+                          setProcessing(false);
+                          clearInterval(interval);
+                      }
+                  });
+            }, 1000);
+        }
+    }, [job]);
 
     let onChange = (e) => {
-        fetch("api/Status/Username?name=" + e.target.value)
+        fetch("api/Status/Username?username=" + e.target.value)
             .then(r => r.json())
             .then(j => setValid(j.object))
     }
@@ -29,15 +60,19 @@ export default function Identity() {
             body: JSON.stringify({ object: e.target.username.value })
         })
             .then(r => r.json())
-            .then(j => {
-                console.log(j)
-                setProcessing(false);
-            });
+            .then(j => setJob(j.object));
     }
 
+    let submit = (p) => {
+        if (p) {
+            return <Spinner size="sm">Loading...</Spinner>
+        } else {
+            return 'Submit'
+        }
+    }
     return (
-        <Modal isOpen={hasUser}>
-            <ModalHeader>
+        <Modal centered isOpen={!hasUser}>
+            <ModalHeader className="text-center d-block">
                 Register
             </ModalHeader>
             <ModalBody>
@@ -57,8 +92,8 @@ export default function Identity() {
                             Pick your username. You can change it later.
                         </FormText>
                     </FormGroup>
-                    <Button type="submit" disabled={!valid || processing}>
-                        Submit
+                    <Button className="float-end" type="submit" disabled={!valid || processing}>
+                        {submit(processing)}
                     </Button>
                 </Form>
             </ModalBody>

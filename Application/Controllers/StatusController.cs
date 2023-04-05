@@ -1,6 +1,8 @@
 ﻿using Application.Data;
 using Application.Services;
 using Blockchain.Contexts;
+using Hangfire;
+using Hangfire.Storage;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,6 +46,16 @@ namespace Application.Controllers
             return new()
             {
                 Object = userService.GetUser(username) == null
+            };
+        }
+
+        [HttpGet]
+        public Response<string> Job(string id)
+        {
+            IStorageConnection connection = JobStorage.Current.GetConnection();
+            JobData jobData = connection.GetJobData(id);
+            return new Response<string>() {
+                Object = jobData.State
             };
         }
     }

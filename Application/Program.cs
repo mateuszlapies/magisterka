@@ -64,11 +64,6 @@ builder.Services.AddTransient<LockService>();
 
 var app = builder.Build();
 
-if (HybridSupport.IsElectronActive)
-{
-    ElectronBootstrap();
-}
-
 if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
@@ -92,7 +87,16 @@ app.MapControllerRoute(
 
 app.MapFallbackToFile("index.html");
 
-app.Run();
+
+if (HybridSupport.IsElectronActive)
+{
+    await app.StartAsync();
+    ElectronBootstrap();
+    app.WaitForShutdown();
+} else
+{
+    app.Run();
+}
 
 async void ElectronBootstrap()
 {
