@@ -1,5 +1,6 @@
 import {Button, Card, CardBody, CardHeader, Form, Input, InputGroup} from "reactstrap";
 import {useEffect, useState} from "react";
+import Identity from "./Identity";
 
 export default function Home() {
   let [posts, setPosts] = useState([]);
@@ -52,6 +53,7 @@ export default function Home() {
           </div>
         ))}
       </div>
+      <Identity/>
     </>
   )
 }
