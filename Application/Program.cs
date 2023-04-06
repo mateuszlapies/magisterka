@@ -87,7 +87,6 @@ app.MapControllerRoute(
 
 app.MapFallbackToFile("index.html");
 
-
 if (HybridSupport.IsElectronActive)
 {
     await app.StartAsync();

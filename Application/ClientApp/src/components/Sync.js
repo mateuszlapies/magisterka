@@ -18,7 +18,7 @@ export default function Sync() {
   return (
     <div className="d-table full">
       <div className="d-table-cell full-height middle text-center">
-        <p className="h1 m-3">Synchronizing</p>
+        <p className="h1 m-5">Synchronizing</p>
         <Progress
           animated
           color="info"
