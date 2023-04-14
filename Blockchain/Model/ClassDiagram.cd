@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="Blockchain.Model.Link">
+    <Position X="10.5" Y="4" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAASAAAAAAAAAAAgAAACAAQAAEAAAAAAAIAAAAAAAAE=</HashCode>
+      <FileName>Model\Link.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Signature" />
+      <Property Name="Lock" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Blockchain.Model.Lock">
+    <Position X="7" Y="3.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAEAAAAAAAAAAAAAAAAAAAIAAgAAAAAAA=</HashCode>
+      <FileName>Model\Lock.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Blockchain.Model.Signature">
+    <Position X="14.25" Y="3.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Signature.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
