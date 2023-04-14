@@ -1,17 +1,39 @@
-import {Button, Card, CardBody, CardHeader, Form, Input, InputGroup} from "reactstrap";
+import {Button, Card, CardBody, CardHeader, Form, Input, InputGroup, Spinner} from "reactstrap";
 import {useEffect, useState} from "react";
+import Identity from "./Identity";
 
 export default function Home() {
   let [posts, setPosts] = useState([]);
+  let [processing, setProcessing] = useState(false);
+  let [job, setJob] = useState();
 
   useEffect(() => {
-    fetch("api/Post/GetPosts")
-      .then(r => r.json())
-      .then(j => setPosts(j.object));
-  }, [])
+    if (!processing) {
+      fetch("api/Post/GetPosts")
+        .then(r => r.json())
+        .then(j => setPosts(j.object));
+    }
+  }, [processing])
+
+  useEffect(() => {
+    if (job) {
+      let interval = setInterval(() => {
+        fetch("api/Status/Job?id=" + job)
+          .then(r => r.json())
+          .then(j => {
+            if (j.object === "Succeeded") {
+              setJob(undefined);
+              setProcessing(false);
+              clearInterval(interval);
+            }
+          })
+      }, 1000);
+    }
+  }, [job]);
 
   let onSubmit = (e) => {
     e.preventDefault();
+    setProcessing(true);
     fetch("api/Post/CreatePost", {
       method: "PUT",
       headers: {
@@ -20,7 +42,16 @@ export default function Home() {
       body: JSON.stringify({ object: e.target.message.value })
     })
       .then(r => r.json())
-      .then(j => console.log(j));
+      .then(j => setJob(j.object))
+      .finally(() => e.target.reset());
+  }
+
+  let icon = (p) => {
+    if (p) {
+      return (<Spinner size="sm">Loading...</Spinner>)
+    } else {
+      return (<i className="bi bi-send"/>);
+    }
   }
 
   return (
@@ -32,8 +63,8 @@ export default function Home() {
               name="message"
               type="textarea"
             />
-            <Button type="submit">
-              <i className="bi bi-send"/>
+            <Button type="submit" disabled={processing}>
+              {icon(processing)}
             </Button>
           </InputGroup>
         </Form>
@@ -52,6 +83,7 @@ export default function Home() {
           </div>
         ))}
       </div>
+      <Identity/>
     </>
   )
 }

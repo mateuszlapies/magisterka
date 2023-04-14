@@ -18,8 +18,8 @@
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ElectronNET.API" Version="13.5.1" />
-    <PackageReference Include="Hangfire" Version="1.7.33" />
+    <PackageReference Include="ElectronNET.API" Version="23.6.1" />
+    <PackageReference Include="Hangfire" Version="1.7.34" />
     <PackageReference Include="Hangfire.MaximumConcurrentExecutions" Version="1.1.0" />
     <PackageReference Include="Hangfire.Storage.SQLite" Version="0.3.3" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.4" />
