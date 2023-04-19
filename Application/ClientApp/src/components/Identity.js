@@ -16,6 +16,7 @@ import {
 export default function Identity() {
     let [hasUser, setHasUser] = useState(false);
     let [valid, setValid] = useState();
+    let [invalid, setInvalid] = useState();
     let [processing, setProcessing] = useState(false);
     let [job, setJob] = useState();
 
@@ -46,7 +47,15 @@ export default function Identity() {
     let onChange = (e) => {
         fetch("api/Status/Username?username=" + e.target.value)
             .then(r => r.json())
-            .then(j => setValid(j.object))
+            .then(j => {
+                if (j.object) {
+                    setValid(true);
+                    setInvalid(false);
+                } else {
+                    setValid(false);
+                    setInvalid(true);
+                }
+            })
     }
 
     let onSubmit = (e) => {
@@ -81,11 +90,11 @@ export default function Identity() {
                         <Label for="username">
                             Username
                         </Label>
-                        <Input id="username" valid={valid} onChange={onChange} />
-                        <FormFeedback valid={true}>
+                        <Input id="username" valid={valid} invalid={invalid} onChange={onChange} />
+                        <FormFeedback valid>
                             This username is available
                         </FormFeedback>
-                        <FormFeedback valid={false}>
+                        <FormFeedback>
                             This username is not available
                         </FormFeedback>
                         <FormText>

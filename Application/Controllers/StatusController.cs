@@ -45,7 +45,7 @@ namespace Application.Controllers
         {
             return new()
             {
-                Object = userService.GetUser(username) == null
+                Object = !userService.CheckUser(username)
             };
         }
 

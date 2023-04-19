@@ -20,6 +20,13 @@ namespace Application.Services
             this.rsa = rsa;
         }
 
+        public bool CheckUser(string username)
+        {
+            return lockContext.Get<User>()
+                .Where(q => (q.Object as User).Name == username)
+                .Any();
+        }
+
         public User GetUser(string owner)
         {
             var link = lockContext.Get<User>()

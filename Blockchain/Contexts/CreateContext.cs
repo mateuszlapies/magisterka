@@ -26,7 +26,13 @@ namespace Blockchain.Contexts
 
         public new bool Verify(Guid id)
         {
-            Link link = Get(id);
+            var link = Get(id);
+
+            if (link == null)
+            {
+                return false;
+            }
+
             if (link.LastId != null)
             {
                 link.LastLink = Get(link.LastId.Value);
