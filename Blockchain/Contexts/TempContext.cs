@@ -142,6 +142,7 @@ namespace Blockchain.Contexts
                 links.Add(link);
                 if (link.Lock != null)
                 {
+                    lastChainLink = link;
                     link = Temp.Query().Where(q => q.Id == link.Lock.NextId).SingleOrDefault();
                 }
                 else
