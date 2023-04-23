@@ -1,5 +1,4 @@
 using Blockchain.Contexts;
-using Blockchain.Model;
 using Model;
 using TestUtils;
 
@@ -7,12 +6,20 @@ namespace Safety.Test
 {
     public class DeleteTests
     {
+        private TestCreateContext testCreateContext;
+        private TestTempContext testTempContext;
+
+        [SetUp]
+        public void Setup()
+        {
+            testCreateContext = new TestCreateContext();
+            testTempContext = new TestTempContext();
+            testCreateContext.Clear();
+        }
 
         [Test]
         public void DeleteSingleLinkTest()
         {
-            var testCreateContext = new TestCreateContext();
-            var testTempContext = new TestTempContext();
             var user = new User()
             {
                 Name = "Test User 1"
@@ -43,10 +50,8 @@ namespace Safety.Test
         }
 
         [Test]
-        public void DeleteMultipleLinksTest()
+        public void DeleteLastLinkTest()
         {
-            var testCreateContext = new TestCreateContext();
-            var testTempContext = new TestTempContext();
             var user = new User()
             {
                 Name = "Test User 1"
@@ -72,8 +77,8 @@ namespace Safety.Test
             testTempContext.Transfer(postLink2.Id);
             testTempContext.Transfer(postLink3.Id);
             Assert.That(testCreateContext.Verify(postLink3.Id), Is.True);
-            testTempContext.Remove(postLink2.Id);
             testTempContext.Remove(postLink3.Id);
+            Assert.That(testCreateContext.Verify(postLink2.Id), Is.True);
             Assert.That(testCreateContext.Verify(postLink3.Id), Is.False);
         }
 
