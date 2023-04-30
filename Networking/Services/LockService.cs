@@ -48,14 +48,14 @@ namespace Networking.Services
             return (LockError.None, Guid.Empty);
         }
 
-        public void Unlock(Guid id)
+        public void Unlock(Guid id, string signature)
         {
-            context.Unlock(id);
+            context.Unlock(id, signature);
         }
 
-        public void Confirm(Guid id)
+        public void Confirm(Guid id, string signature)
         {
-            context.Confirm(id);
+            context.Confirm(id, signature);
         }
     }
 }

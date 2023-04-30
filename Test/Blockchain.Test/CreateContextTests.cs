@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using Blockchain.Contexts;
 using TestUtils;
 using TestUtils.Classes;
@@ -7,13 +6,13 @@ namespace Blockchain.Test
 {
     public class CreateContextTests
     {
+        private readonly RSAHelper rsa;
         private readonly CreateContext context;
-        private readonly RSAParameters parameters;
 
         public CreateContextTests()
         {
+            rsa = new RSAHelper();
             context = new CreateContext();
-            parameters = RSAHelper.GetPrivate();
         }
 
         [SetUp]
@@ -25,21 +24,21 @@ namespace Blockchain.Test
         [Test]
         public void AddSingleLinkTest()
         {
-            TestObjectHelper.Add(context, parameters);
+            TestObjectHelper.Add(context, rsa.GetParameters(true));
             Assert.Pass();
         }
 
         [Test]
         public void AddMultipleLinkTest()
         {
-            TestObjectHelper.Add(context, parameters, 1000);
+            TestObjectHelper.Add(context, rsa.GetParameters(true), 1000);
             Assert.Pass();
         }
 
         [Test]
         public void GetTest()
         {
-            Guid id = TestObjectHelper.Add(context, parameters);
+            Guid id = TestObjectHelper.Add(context, rsa.GetParameters(true));
             TestObject obj = TestObjectHelper.Get(context, id);
             Assert.Multiple(() =>
             {
@@ -56,7 +55,7 @@ namespace Blockchain.Test
         [Test]
         public void VerifySingleLinkTest()
         {
-            Guid id = TestObjectHelper.Add(context, parameters);
+            Guid id = TestObjectHelper.Add(context, rsa.GetParameters(true));
             Console.WriteLine(id);
             Assert.That(context.Verify(id), Is.True);
         }
@@ -64,8 +63,8 @@ namespace Blockchain.Test
         [Test]
         public void VerifyMultipleLinksTest()
         {
-            TestObjectHelper.Add(context, parameters, 100);
-            Guid id = TestObjectHelper.Add(context, parameters);
+            TestObjectHelper.Add(context, rsa.GetParameters(true), 100);
+            Guid id = TestObjectHelper.Add(context, rsa.GetParameters(true));
             Assert.That(context.Verify(id), Is.True);
         }
     }

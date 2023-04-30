@@ -8,13 +8,13 @@ namespace Blockchain.Test
 {
     public class SyncContextTests
     {
-        private readonly RSAParameters parameters;
+        private readonly RSAHelper rsa;
         private readonly SyncContext syncContext;
         private readonly CreateContext createContext;
 
         public SyncContextTests()
         {
-            parameters = RSAHelper.GetPrivate();
+            rsa = new RSAHelper();
             syncContext = new SyncContext();
             createContext = new CreateContext();
         }
@@ -28,7 +28,7 @@ namespace Blockchain.Test
         [Test]
         public void SyncSingleLinkTest()
         {
-            Guid link = TestObjectHelper.Add(createContext, parameters);
+            Guid link = TestObjectHelper.Add(createContext, rsa.GetParameters(true));
             var (success, list) = syncContext.Get(null);
             Assert.That(success, Is.True);
             Assert.That(list.Count, Is.EqualTo(1));
@@ -46,8 +46,8 @@ namespace Blockchain.Test
         [Test]
         public void SyncMultipleLinkTest()
         {
-            Guid first = TestObjectHelper.Add(createContext, parameters);
-            Guid last = TestObjectHelper.Add(createContext, parameters, 4);
+            Guid first = TestObjectHelper.Add(createContext, rsa.GetParameters(true));
+            Guid last = TestObjectHelper.Add(createContext, rsa.GetParameters(true), 4);
             var (success, list) = syncContext.Get(null);
             Assert.That(success, Is.True);
             Assert.That(list.Count, Is.EqualTo(5));

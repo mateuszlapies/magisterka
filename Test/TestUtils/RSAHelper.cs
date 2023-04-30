@@ -1,14 +1,12 @@
-﻿using Blockchain.Model;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Security.Cryptography;
 
 namespace TestUtils
 {
     public class RSAHelper
     {
-        private static RSA rsa;
+        private RSA rsa;
 
-        private static void Initialize()
+        public RSAHelper()
         {
             if (rsa == null)
             {
@@ -16,25 +14,31 @@ namespace TestUtils
             }
         }
 
-        public static RSAParameters GetPublic()
+        public RSAParameters GetParameters(bool includePrivate = false)
         {
-            Initialize();
-            return rsa.ExportParameters(false);
+            return rsa.ExportParameters(includePrivate);
         }
 
-        public static RSAParameters GetPrivate()
+        public string GetPublicKey()
         {
-            Initialize();
-            return rsa.ExportParameters(true);
+            return Convert.ToBase64String(rsa.ExportRSAPublicKey());
         }
 
-        public static string GetOwner()
+        public string GetOwner()
         {
             using RSACryptoServiceProvider rsaService = new();
-            rsaService.ImportParameters(GetPrivate());
+            rsaService.ImportParameters(GetParameters(true));
             byte[] unsigned = rsa.ExportRSAPublicKey();
             byte[] signed = rsaService.SignData(unsigned, SHA256.Create());
             return Convert.ToBase64String(signed);
+        }
+
+        public static bool VerifyOwner(string publicKey, string owner)
+        {
+            using RSACryptoServiceProvider rsaService = new();
+            byte[] unsigned = Convert.FromBase64String(publicKey);
+            rsaService.ImportRSAPublicKey(unsigned, out int bytesRead);
+            return rsaService.VerifyData(unsigned, SHA256.Create(), Convert.FromBase64String(owner));
         }
     }
 }

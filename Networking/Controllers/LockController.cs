@@ -33,13 +33,13 @@ namespace Networking.Controllers
         [HttpPost]
         public void Confirm(ConfirmRequest request)
         {
-            lockService.Confirm(request.Id);
+            lockService.Confirm(request.Id, request.Signature);
         }
 
         [HttpPost]
         public void Unlock(UnlockRequest request)
         {
-            lockService.Unlock(request.Id);
+            lockService.Unlock(request.Id, request.Signature);
         }
     }
 }

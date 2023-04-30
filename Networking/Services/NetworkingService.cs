@@ -47,7 +47,7 @@ namespace Networking.Services
             return links;
         }
 
-        public static async Task Lock(Link link, string owner)
+        public static async Task Lock(Link link, string owner, string signature)
         {
             LockRequest request = new()
             {
@@ -80,7 +80,7 @@ namespace Networking.Services
             tasks.Clear();
             if (successes.Count > failures.Count)
             {
-                var confirmRequest = new ConfirmRequest() { Id = link.Id };
+                var confirmRequest = new ConfirmRequest() { Id = link.Id, Signature = signature };
                 foreach (var endpoint in endpoints)
                 {
                     tasks.Add(await Task.Factory.StartNew(async () =>
@@ -92,7 +92,7 @@ namespace Networking.Services
                 Task.WaitAll(tasks.ToArray());
             } else if (endpoints.Count > 0)
             {
-                var unlockRequest = new UnlockRequest() { Id = link.Id };
+                var unlockRequest = new UnlockRequest() { Id = link.Id, Signature = signature };
                 foreach (var endpoint in successes)
                 {
                     tasks.Add(await Task.Factory.StartNew(async () =>

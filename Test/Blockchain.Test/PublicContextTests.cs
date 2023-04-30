@@ -6,11 +6,13 @@ namespace Blockchain.Test
 {
     public class PublicContextTests
     {
+        private readonly RSAHelper rsa;
         private readonly LockContext lockContext;
         private readonly CreateContext createContext;
 
         public PublicContextTests()
         {
+            rsa = new RSAHelper();
             lockContext = new LockContext();
             createContext = new CreateContext();
         }
@@ -25,8 +27,8 @@ namespace Blockchain.Test
         [Test]
         public void GetSingleTest()
         {
-            var id = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
-            lockContext.Confirm(id);
+            var id = TestObjectHelper.Add(createContext, rsa.GetParameters(true));
+            lockContext.Confirm(id, rsa.GetOwner());
 
             var publicContext = new PublicContext();
             var obj = publicContext.Get<TestObject>(id);
@@ -36,18 +38,18 @@ namespace Blockchain.Test
         [Test]
         public void GetMultipleTest()
         {
-            var first = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
-            lockContext.Confirm(first);
+            var first = TestObjectHelper.Add(createContext, rsa.GetParameters(true));
+            lockContext.Confirm(first, rsa.GetOwner());
 
-            var second = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
-            lockContext.Lock(lockContext.Get(first), lockContext.Get(second), RSAHelper.GetOwner());
-            lockContext.Confirm(second);
+            var second = TestObjectHelper.Add(createContext, rsa.GetParameters(true));
+            lockContext.Lock(lockContext.Get(first), lockContext.Get(second), rsa.GetPublicKey());
+            lockContext.Confirm(second, rsa.GetOwner());
 
-            var third = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
-            lockContext.Lock(lockContext.Get(second), lockContext.Get(third), RSAHelper.GetOwner());
-            lockContext.Confirm(third);
+            var third = TestObjectHelper.Add(createContext, rsa.GetParameters(true));
+            lockContext.Lock(lockContext.Get(second), lockContext.Get(third), rsa.GetPublicKey());
+            lockContext.Confirm(third, rsa.GetOwner());
 
-            var fourth = TestObjectHelper.Add(createContext, RSAHelper.GetPrivate());
+            var fourth = TestObjectHelper.Add(createContext, rsa.GetParameters(true));
 
             var publicContext = new PublicContext();
             var list = publicContext.Get<TestObject>();

@@ -20,7 +20,7 @@ namespace Blockchain.Contexts
             Add(nextLink);
         }
 
-        public void Unlock(Guid id)
+        public void Unlock(Guid id, string signature)
         {
             var link = Get(id);
             if (link != null)
@@ -28,6 +28,14 @@ namespace Blockchain.Contexts
                 var lockedLink = Get(link.LastId.Value);
                 if (lockedLink.Lock != null)
                 {
+                    if (lockedLink.Lock.Confirmed)
+                    {
+                        return;
+                    }
+                    if (!VerifyOwner(lockedLink.Lock.Owner, signature))
+                    {
+                        return;
+                    }
                     lockedLink.Lock = null;
                     Update(lockedLink);
                 }
@@ -36,13 +44,18 @@ namespace Blockchain.Contexts
             CalculateLastLink();
         }
 
-        public void Confirm(Guid id)
+        public void Confirm(Guid id, string signature)
         {
             var link = Get(id);
             if (link != null)
             {
                 if (link.LastId.HasValue)
                 {
+                    var lockedLink = Get(link.LastId.Value);
+                    if (!VerifyOwner(lockedLink.Lock.Owner, signature))
+                    {
+                        return;
+                    }
                     var lastLink = Get(link.LastId.Value);
                     lastLink.Lock.Confirmed = true;
                     Update(lastLink);

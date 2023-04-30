@@ -48,7 +48,7 @@ namespace Blockchain.Contexts
                     throw new ValidationException();
                 }
 
-                if (!VerifyOwner(link.Signature.Owner, lastLink.Lock.Owner))
+                if (link.Signature.Owner != lastLink.Lock.Owner)
                 {
                     throw new ValidationException();
                 }

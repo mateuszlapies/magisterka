@@ -7,8 +7,14 @@ namespace Safety.Test
 {
     public class UpdateTests
     {
+        private readonly RSAHelper rsa;
         private TestCreateContext testCreateContext;
         private TestTempContext testTempContext;
+
+        public UpdateTests()
+        {
+            this.rsa = new RSAHelper();
+        }
 
         [SetUp]
         public void Setup()
@@ -37,10 +43,10 @@ namespace Safety.Test
             {
                 Message = "Test Message 3"
             };
-            var userLink = testCreateContext.Add(user, RSAHelper.GetPrivate());
-            var postLink1 = testCreateContext.Add(post1, RSAHelper.GetPrivate());
-            var postLink2 = testCreateContext.Add(post2, RSAHelper.GetPrivate());
-            var postLink3 = testCreateContext.Add(post3, RSAHelper.GetPrivate());
+            var userLink = testCreateContext.Add(user, rsa.GetParameters(true));
+            var postLink1 = testCreateContext.Add(post1, rsa.GetParameters(true));
+            var postLink2 = testCreateContext.Add(post2, rsa.GetParameters(true));
+            var postLink3 = testCreateContext.Add(post3, rsa.GetParameters(true));
             testTempContext.Transfer(userLink.Id);
             testTempContext.Transfer(postLink1.Id);
             testTempContext.Transfer(postLink2.Id);
@@ -71,10 +77,10 @@ namespace Safety.Test
             {
                 Message = "Test Message 3"
             };
-            var userLink = testCreateContext.Add(user, RSAHelper.GetPrivate());
-            var postLink1 = testCreateContext.Add(post1, RSAHelper.GetPrivate());
-            var postLink2 = testCreateContext.Add(post2, RSAHelper.GetPrivate());
-            var postLink3 = testCreateContext.Add(post3, RSAHelper.GetPrivate());
+            var userLink = testCreateContext.Add(user, rsa.GetParameters(true));
+            var postLink1 = testCreateContext.Add(post1, rsa.GetParameters(true));
+            var postLink2 = testCreateContext.Add(post2, rsa.GetParameters(true));
+            var postLink3 = testCreateContext.Add(post3, rsa.GetParameters(true));
             testTempContext.Transfer(userLink.Id);
             testTempContext.Transfer(postLink1.Id);
             testTempContext.Transfer(postLink2.Id);
@@ -105,10 +111,10 @@ namespace Safety.Test
             {
                 Message = "Test Message 3"
             };
-            var userLink = testCreateContext.Add(user, RSAHelper.GetPrivate());
-            var postLink1 = testCreateContext.Add(post1, RSAHelper.GetPrivate());
-            var postLink2 = testCreateContext.Add(post2, RSAHelper.GetPrivate());
-            var postLink3 = testCreateContext.Add(post3, RSAHelper.GetPrivate());
+            var userLink = testCreateContext.Add(user, rsa.GetParameters(true));
+            var postLink1 = testCreateContext.Add(post1, rsa.GetParameters(true));
+            var postLink2 = testCreateContext.Add(post2, rsa.GetParameters(true));
+            var postLink3 = testCreateContext.Add(post3, rsa.GetParameters(true));
             testTempContext.Transfer(userLink.Id);
             testTempContext.Transfer(postLink1.Id);
             testTempContext.Transfer(postLink2.Id);

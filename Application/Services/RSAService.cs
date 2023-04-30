@@ -32,7 +32,7 @@ namespace Application.Services
             return Convert.ToBase64String(rsa.ExportRSAPublicKey());
         }
 
-        public string GetOwner()
+        public string GetSignedPublic()
         {
             using RSACryptoServiceProvider rsaService = new();
             rsaService.ImportParameters(GetParameters(true));
@@ -41,7 +41,7 @@ namespace Application.Services
             return Convert.ToBase64String(signed);
         }
 
-        public static bool VerifyOwner(string publicKey, string owner)
+        public static bool VerifySignedPublic(string publicKey, string owner)
         {
             using RSACryptoServiceProvider rsaService = new();
             byte[] unsigned = Convert.FromBase64String(publicKey);
